@@ -89,7 +89,7 @@ int init_env(ShellInfo *shellInfo, char *varName, char *varVal)
 		}
 		node = node->next;
 	}
-	add_node_end(&(shellInfo->environment_list), buffer, 0);
+	append_node(&(shellInfo->environment_list), buffer, 0);
 	free(buffer);
 	shellInfo->environment_changed_flag = 1;
 	return (0);
