@@ -41,8 +41,8 @@ void setShellInfo(ShellInfo *shellInfo, char **argVector)
 			;
 		shellInfo->argument_count = i;
 
-		replace_alias(shellInfo);
-		replace_vars(shellInfo);
+		substitute_alias(shellInfo);
+		substitute_vars(shellInfo);
 	}
 }
 

@@ -14,25 +14,25 @@ int run_shell(ShellInfo *shellInfo, char **args)
 
 	while (read_status != -1 && builtin_command_return != -2)
 	{
-		initialize_shellInfo(shellInfo);
-		if (is_interactive_mode(shellInfo))
-			print_prompt("$ ");
-		flush_buffer(BUFFER_CLEAR);
-		read_status = get_user_input(shellInfo);
+		initializeShellInfo(shellInfo);
+		if (isInteractive(shellInfo))
+			_puts("$ ");
+		e_putchar(BUFFER_CLEAR);
+		read_status = getInputLine(shellInfo);
 		if (read_status != -1)
 		{
-			set_shellInfo(shellInfo, args);
+			setShellInfo(shellInfo, args);
 			builtin_command_return = execute_builtin_command(shellInfo);
 			if (builtin_command_return == -1)
-				execute_command(shellInfo);
+				executeCommand(shellInfo);
 		}
-		else if (is_interactive_mode(shellInfo))
-			print_newline();
-		free_shellInfo(shellInfo, 0);
+		else if (isInteractive(shellInfo))
+			_putchar('\n');
+		freeShellInfo(shellInfo, 0);
 	}
-	save_command_history(shellInfo);
-	free_shellInfo(shellInfo, 1);
-	if (!is_interactive_mode(shellInfo) && shellInfo->last_command_status)
+	writeHistory(shellInfo);
+	freeShellInfo(shellInfo, 1);
+	if (!isInteractive(shellInfo) && shellInfo->last_command_status)
 		exit(shellInfo->last_command_status);
 	if (builtin_command_return == -2)
 	{
@@ -57,17 +57,17 @@ int execute_builtin_command(ShellInfo *shellInfo)
 	int i, builtin_command_return = -1;
 	BuiltInCommandTable builtin_commands[] = {
 	    {"exit", exitShell},
-	    {"env", print_environment},
+	    {"env", _env},
 	    {"help", _help},
 	    {"history", _History},
-	    {"setenv", set_environment_variable},
-	    {"unsetenv", unset_environment_variable},
+	    {"setenv", init_environ},
+	    {"unsetenv", uninit_environ},
 	    {"cd", _cd},
-	    {"alias", setAlias},
+	    {"alias", handleAlias},
 	    {NULL, NULL}};
 	for (i = 0; builtin_commands[i].command_name; i++)
-		if (compare_strings(shellInfo->arguments[0],
-		builtin_commands[i].command_name) == 0)
+		if (str_cmp(shellInfo->arguments[0],
+			    builtin_commands[i].command_name) == 0)
 		{
 			shellInfo->line_number++;
 			builtin_command_return = builtin_commands[i].execute(shellInfo);
@@ -94,29 +94,29 @@ void execute_path(ShellInfo *shellInfo)
 		shellInfo->count_line_flag = 0;
 	}
 	for (i = 0, k = 0; shellInfo->input_line[i]; i++)
-		if (!is_delimiter(shellInfo->input_line[i], " \t\n"))
+		if (!isDelimiter(shellInfo->input_line[i], " \t\n"))
 			k++;
 	if (!k)
 		return;
 
-	path = find_command_path(shellInfo,
-			get_environment_variable(shellInfo, "PATH="),
-			shellInfo->arguments[0]);
+	path = findCommandInPath(shellInfo,
+				 get_environ(shellInfo, "PATH="),
+				 shellInfo->arguments[0]);
 	if (path)
 	{
 		shellInfo->command_path = path;
-		execute_command_in_new_process(shellInfo);
+		executeCommand(shellInfo);
 	}
 	else
 	{
-		if ((is_interactive_mode(shellInfo) || get_environment_variable
-					(shellInfo, "PATH=") || shellInfo->arguments[0] == '/') &&
-				is_command(shellInfo, shellInfo->arguments[0]))
-			execute_command_in_new_process(shellInfo);
+		if ((isInteractive(shellInfo) ||
+		     get_environ(shellInfo, "PATH=") || shellInfo->arguments[0][0] == '/') &&
+		    isExecutable(shellInfo, shellInfo->arguments[0]))
+			executeCommand(shellInfo);
 		else if (*(shellInfo->input_line) != '\n')
 		{
 			shellInfo->last_command_status = 127;
-			print_error(shellInfo, "not found\n");
+			printError(shellInfo, "not found\n");
 		}
 	}
 }
@@ -140,9 +140,9 @@ void executeCommand(ShellInfo *shellInfo)
 	if (processId == 0)
 	{
 		if (execve(shellInfo->command_path, shellInfo->arguments,
-					environment_variables) == -1)
+			   get_env(shellInfo)) == -1)
 		{
-			freeshellInfo(shellInfo, 1);
+			freeShellInfo(shellInfo, 1);
 			if (errno == EACCES)
 				exit(126);
 			exit(1);
@@ -153,8 +153,7 @@ void executeCommand(ShellInfo *shellInfo)
 		wait(&(shellInfo->last_command_status));
 		if (WIFEXITED(shellInfo->last_command_status))
 		{
-			shellInfo->last_command_status = WEXITSTATUS
-				(shellInfo->last_command_status);
+			shellInfo->last_command_status = WEXITSTATUS(shellInfo->last_command_status);
 			if (shellInfo->last_command_status == 126)
 				printError(shellInfo, "Permission denied\n");
 		}

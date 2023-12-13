@@ -46,24 +46,24 @@ int _cd(ShellInfo *shellInfo)
 		_puts("TODO: >>getcwd failure emsg here<<\n");
 	if (!shellInfo->arguments[1])
 	{
-		dir = _getenv(shellInfo, "HOME=");
+		dir = get_environ(shellInfo, "HOME=");
 		if (!dir)
 			chdir_ret =
-			    chdir((dir = _getenv(shellInfo, "PWD=")) ? dir : "/");
+			    chdir((dir = get_environ(shellInfo, "PWD=")) ? dir : "/");
 		else
 			chdir_ret = chdir(dir);
 	}
 	else if (str_cmp(shellInfo->arguments[1], "-") == 0)
 	{
-		if (!_getenv(shellInfo, "OLDPWD="))
+		if (!get_environ(shellInfo, "OLDPWD="))
 		{
 			_puts(s);
 			_putchar('\n');
 			return (1);
 		}
-		_puts(_getenv(shellInfo, "OLDPWD=")), _putchar('\n');
+		_puts(get_environ(shellInfo, "OLDPWD=")), _putchar('\n');
 		chdir_ret =
-		    chdir((dir = _getenv(shellInfo, "OLDPWD=")) ? dir : "/");
+		    chdir((dir = get_environ(shellInfo, "OLDPWD=")) ? dir : "/");
 	}
 	else
 		chdir_ret = chdir(shellInfo->arguments[1]);
@@ -74,8 +74,8 @@ int _cd(ShellInfo *shellInfo)
 	}
 	else
 	{
-		_setenv(shellInfo, "OLDPWD", _getenv(shellInfo, "PWD="));
-		_setenv(shellInfo, "PWD", getcwd(buffer, 1024));
+		init_env(shellInfo, "OLDPWD", get_environ(shellInfo, "PWD="));
+		init_env(shellInfo, "PWD", getcwd(buffer, 1024));
 	}
 	return (0);
 }

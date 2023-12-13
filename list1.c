@@ -106,7 +106,7 @@ size_t display_list_data(const StringNumberList *node)
 char **convert_list_to_strings(StringNumberList *first_node)
 {
 	StringNumberList *current_node = first_node;
-	size_t i = calculate_list_length(first_node), j;
+	size_t i = list_length(first_node), j;
 	char **str_array;
 	char *string;
 
@@ -118,7 +118,7 @@ char **convert_list_to_strings(StringNumberList *first_node)
 	i = 0;
 	while (current_node)
 	{
-		string = malloc(_strlen(current_node->string) + 1);
+		string = malloc(strn_len(current_node->string) + 1);
 		if (!string)
 		{
 			for (j = 0; j < i; j++)
@@ -127,7 +127,7 @@ char **convert_list_to_strings(StringNumberList *first_node)
 			return (NULL);
 		}
 
-		string = _strcpy(string, current_node->string);
+		string = strn_cpy(string, current_node->string);
 		str_array[i] = string;
 		current_node = current_node->next;
 		i++;

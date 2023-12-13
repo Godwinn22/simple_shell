@@ -50,7 +50,7 @@ int init_environ(ShellInfo *shellInfo)
 		e_puts("Incorrect number of arguments\n");
 		return (1);
 	}
-	if (set_env(shellInfo, shellInfo->arguments[1], shellInfo->arguments[2]))
+	if (init_env(shellInfo, shellInfo->arguments[1], shellInfo->arguments[2]))
 		return (0);
 	return (1);
 }
@@ -72,7 +72,7 @@ int uninit_environ(ShellInfo *shellInfo)
 		return (1);
 	}
 	for (i = 0; i < shellInfo->argument_count; i++)
-		unset_env(shellInfo, shellInfo->arguments[i]);
+		uninit_env(shellInfo, shellInfo->arguments[i]);
 
 	return (0);
 }
@@ -87,9 +87,10 @@ int populateEnvList(ShellInfo *shellInfo)
 {
 	StringNumberList *node = NULL;
 	size_t i;
-
-	for (i = 0; modified_environment[i]; i++)
-		append_node(&node, modified_environment[i], 0);
+	char **environment;
+	
+	for (i = 0; environment[i]; i++)
+		append_node(&node, environment[i], 0);
 	shellInfo->environment_list = node;
 	return (0);
 }

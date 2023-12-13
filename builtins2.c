@@ -10,7 +10,7 @@
  */
 int _History(ShellInfo *shellInfo)
 {
-	print_list(shellInfo->history_list);
+	display_list(shellInfo->history_list);
 	return (0);
 }
 
@@ -31,9 +31,9 @@ int unsetAlias(ShellInfo *shellInfo, char *aliasName)
 		return (1);
 	s = *d;
 	*d = 0;
-	ret = delete_node_index(&(shellInfo->alias_list),
-				   get_node_index(shellInfo->alias_list,
-						  node_starts(shellInfo->alias_list, aliasName, -1)));
+	ret = remove_node_at_index(&(shellInfo->alias_list),
+				   find_node_position(shellInfo->alias_list,
+						  find_node_with_prefix(shellInfo->alias_list, aliasName, -1)));
 	*d = s;
 	return (ret);
 }
@@ -110,7 +110,7 @@ int handleAlias(ShellInfo *shellInfo)
 		if (p)
 			setAlias(shellInfo, shellInfo->arguments[i]);
 		else
-			printAlias(node_starts(shellInfo->alias_list,
+			printAlias(find_node_with_prefix(shellInfo->alias_list,
 						shellInfo->arguments[i], '='));
 	}
 

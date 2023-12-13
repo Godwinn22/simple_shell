@@ -12,7 +12,7 @@ char **get_env(ShellInfo *shellInfo)
 	if (!shellInfo->modified_environment || shellInfo->environment_changed_flag)
 	{
 		shellInfo->modified_environment =
-		    list_to_strings(shellInfo->environment_list);
+		    convert_list_to_strings(shellInfo->environment_list);
 		shellInfo->environment_changed_flag = 0;
 	}
 
@@ -41,7 +41,7 @@ int uninit_env(ShellInfo *shellInfo, char *varName)
 		if (d && *d == '=')
 		{
 			shellInfo->environment_changed_flag =
-			    delete_node_index(&(shellInfo->environment_list), i);
+			    remove_node_at_index(&(shellInfo->environment_list), i);
 			i = 0;
 			node = shellInfo->environment_list;
 			continue;

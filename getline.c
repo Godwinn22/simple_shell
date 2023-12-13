@@ -22,7 +22,7 @@ ssize_t bufferChainedCommands(ShellInfo *shellInfo,
 #if ENABLE_GETLINE
 		bytesRead = getline(cmdBuf, &len_d, stdin);
 #else
-		bytesRead = _getline(shellInfo, cmdBuf, &len_d);
+		bytesRead = getNextLine(shellInfo, cmdBuf, &len_d);
 #endif
 		if (bytesRead > 0)
 		{
@@ -33,7 +33,7 @@ ssize_t bufferChainedCommands(ShellInfo *shellInfo,
 			}
 			shellInfo->count_line_flag = 1;
 			stripComments(*cmdBuf);
-			build_history_list(shellInfo, *cmdBuf, shellInfo->history_line_count++);
+			buildHistoryList(shellInfo, *cmdBuf, shellInfo->history_line_count++);
 			{
 				*bufLength = bytesRead;
 				shellInfo->command_buffer = cmdBuf;
@@ -65,10 +65,10 @@ ssize_t getInputLine(ShellInfo *shellInfo)
 		j = i;
 		p = buf + i;
 
-		check_chain(shellInfo, buf, &j, i, len);
+		eval_chain(shellInfo, buf, &j, i, len);
 		while (j < len)
 		{
-			if (is_chain(shellInfo, buf, &j))
+			if (is_cmd_chain(shellInfo, buf, &j))
 				break;
 			j++;
 		}

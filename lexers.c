@@ -19,8 +19,8 @@ char **_strtow(char *inputString, char *delimiters)
 	if (!delimiters)
 		delimiters = " ";
 	for (index = 0; inputString[index] != '\0'; index++)
-		if (!is_delim(inputString[index], delimiters) &&
-		    (is_delim(inputString[index + 1], delimiters) ||
+		if (!isDelimiter(inputString[index], delimiters) &&
+		    (isDelimiter(inputString[index + 1], delimiters) ||
 		     !inputString[index + 1]))
 			num_of_words++;
 	if (num_of_words == 0)
@@ -30,10 +30,10 @@ char **_strtow(char *inputString, char *delimiters)
 		return (NULL);
 	for (index = 0, j = 0; j < num_of_words; j++)
 	{
-		while (is_delim(inputString[index], delimiters))
+		while (isDelimiter(inputString[index], delimiters))
 			index++;
 		k = 0;
-		while (!is_delim(inputString[index + k], delimiters) &&
+		while (!isDelimiter(inputString[index + k], delimiters) &&
 		       inputString[index + k])
 			k++;
 		splitString[j] = malloc((k + 1) * sizeof(char));

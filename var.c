@@ -150,7 +150,7 @@ int substitute_vars(ShellInfo *shellInfo)
 					   strn_dup(convertNum(shellInfo->last_command_status, 10, 0)));
 			continue;
 		}
-		if (!_strcmp(shellInfo->arguments[i], "$$"))
+		if (str_cmp(shellInfo->arguments[i], "$$"))
 		{
 			substitute_strings(&(shellInfo->arguments[i]),
 					   strn_dup(convertNum(getpid(), 10, 0)));

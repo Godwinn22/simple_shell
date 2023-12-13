@@ -33,10 +33,10 @@
 #define ENABLE_STRTOK 0
 
 /* History file settings */
-#define HISTORY_FILE_NAME ".simple_shell_history"
-#define HISTORY_MAX_SIZE 4096
+#define HISTORY_FILE_NAME	".simple_shell_history"
+#define HISTORY_MAX_SIZE	4096
 
-extern char **environment_variables;
+extern char **environment;
 
 /* Linked list structure for strings and numbers */
 
@@ -218,7 +218,7 @@ ssize_t find_node_position(StringNumberList *first_node,
 
 
 /* vars.c */
-int substitute_strings(char **old_string, char *new_string)
+int substitute_strings(char **old_string, char *new_string);
 int is_cmd_chain(ShellInfo *shellInfo, char *buffer, size_t *position);
 void eval_chain(ShellInfo *shellInfo, char *buffer, size_t *position,
 		size_t start, size_t length);

@@ -57,7 +57,7 @@ char *findCommandInPath(ShellInfo *shellInfo, char *pathStr, char *command)
 
 	if (!pathStr)
 		return (NULL);
-	if ((_strlen(command) > 2) && starts_with(command, "./"))
+	if ((strn_len(command) > 2) && startsWith(command, "./"))
 	{
 		if (isExecutable(shellInfo, command))
 			return (command);
@@ -66,15 +66,15 @@ char *findCommandInPath(ShellInfo *shellInfo, char *pathStr, char *command)
 	{
 		if (!pathStr[i] || pathStr[i] == ':')
 		{
-			path = dup_chars(pathStr, current_pos, i);
+			path = duplicateCharacters(pathStr, current_pos, i);
 			if (!*path)
-				_strcat(path, command);
+				strn_cat(path, command);
 			else
 			{
-				_strcat(path, "/");
-				_strcat(path, command);
+				strn_cat(path, "/");
+				strn_cat(path, command);
 			}
-			if (is_command(shellInfo, path))
+			if (isExecutable(shellInfo, path))
 				return (path);
 			if (!pathStr[i])
 				break;

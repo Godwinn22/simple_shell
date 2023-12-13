@@ -90,18 +90,18 @@ int readHistory(ShellInfo *shellInfo)
 		if (buffer[i] == '\n')
 		{
 			buffer[i] = 0;
-			build_history_list(shellInfo, buffer + last, count++);
+			buildHistoryList(shellInfo, buffer + last, count++);
 			last = i + 1;
 		}
 		i++;
 	}
 	if (last != i)
-		build_history_list(shellInfo, buffer + last, count++);
+		buildHistoryList(shellInfo, buffer + last, count++);
 	free(buffer);
 	shellInfo->history_line_count = count;
 	while (shellInfo->history_line_count-- >= HISTORY_MAX_SIZE)
-		delete_node_at_index(&(shellInfo->history_list), 0);
-	renumber_history(shellInfo);
+		remove_node_at_index(&(shellInfo->history_list), 0);
+	renumberHistory(shellInfo);
 	return (shellInfo->history_line_count);
 }
 
