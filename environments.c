@@ -31,7 +31,7 @@ char *get_environ(ShellInfo *shellInfo, const char *varName)
  */
 int _env(ShellInfo *shellInfo)
 {
-	print_list_str(shellInfo->environment_list);
+	display_list_data(shellInfo->environment_list);
 	return (0);
 }
 
@@ -89,7 +89,7 @@ int populateEnvList(ShellInfo *shellInfo)
 	size_t i;
 
 	for (i = 0; modified_environment[i]; i++)
-		add_node_end(&node, modified_environment[i], 0);
+		append_node(&node, modified_environment[i], 0);
 	shellInfo->environment_list = node;
 	return (0);
 }
