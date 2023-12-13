@@ -200,6 +200,26 @@ ssize_t readBuffer(ShellInfo *shellInfo, char *buffer, size_t *size);
 int getNextLine(ShellInfo *shellInfo, char **bufferPtr, size_t *bufLength);
 void blockCtrlC(int signalNumber);
 
+/* lists functions */
+StringNumberList *prepend_node(StringNumberList **list_head,
+			       const char *string, int number);
+StringNumberList *append_node(StringNumberList **list_head,
+			      const char *string, int number);
+size_t display_list_data(const StringNumberList *node);
+int remove_node_at_index(StringNumberList **list_head, unsigned int position);
+void free_list(StringNumberList **list_head_ptr);
+size_t list_length(const StringNumberList *node);
+char **convert_list_to_strings(StringNumberList *first_node);
+size_t display_list(const StringNumberList *node);
+StringNumberList *find_node_with_prefix(StringNumberList *node,
+					char *prefix, char c);
+ssize_t find_node_position(StringNumberList *first_node,
+			   StringNumberList *target_node);
+
+
+
+
+
 /* environments.c */
 char *get_environ(ShellInfo *shellInfo, const char *varName);
 int _env(ShellInfo *shellInfo);
@@ -211,6 +231,13 @@ int populateEnvList(ShellInfo *shellInfo);
 char **get_env(ShellInfo *shellInfo);
 int uninit_env(ShellInfo *shellInfo, char *varName);
 int init_env(ShellInfo *shellInfo, char *varName, char *varVal);
+
+/* History.c */
+char *getHistoryFile(ShellInfo *shellInfo);
+int writeHistory(ShellInfo *shellInfo);
+int readHistory(ShellInfo *shellInfo);
+int buildHistoryList(ShellInfo *shellInfo, char *buffer, int count);
+int renumberHistory(ShellInfo *shellInfo);
 
 
 
