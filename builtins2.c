@@ -56,7 +56,7 @@ int setAlias(ShellInfo *shellInfo, char *aliasName)
 		return (unsetAlias(shellInfo, aliasName));
 
 	unsetAlias(shellInfo, aliasName);
-	return (add_node_at_end(&(shellInfo->alias_list), aliasName, 0) == NULL);
+	return (append_node(&(shellInfo->alias_list), aliasName, 0) == NULL);
 }
 
 /**
