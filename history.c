@@ -119,7 +119,7 @@ int buildHistoryList(ShellInfo *shellInfo, char *buffer, int count)
 
 	if (shellInfo->history_list)
 		node = shellInfo->history_list;
-	add_node_end(&node, buffer, count);
+	append_node(&node, buffer, count);
 	if (!shellInfo->history_list)
 		shellInfo->history_list = node;
 	return (0);
