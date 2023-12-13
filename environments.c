@@ -9,7 +9,7 @@
  */
 char *get_environ(ShellInfo *shellInfo, const char *varName)
 {
-	StringNumberList *node = shellInfo->environment_list;
+	string_list *node = shellInfo->environment_list;
 	char *d;
 
 	while (node)
@@ -85,12 +85,11 @@ int uninit_environ(ShellInfo *shellInfo)
  */
 int populateEnvList(ShellInfo *shellInfo)
 {
-	StringNumberList *node = NULL;
+	string_list *node = NULL;
 	size_t i;
-	char **environment;
-	
-	for (i = 0; environment[i]; i++)
-		append_node(&node, environment[i], 0);
+
+	for (i = 0; environ[i]; i++)
+		append_node(&node, environ[i], 0);
 	shellInfo->environment_list = node;
 	return (0);
 }

@@ -66,8 +66,8 @@ void freeShellInfo(ShellInfo *shellInfo, int freeall)
 			free_list(&(shellInfo->history_list));
 		if (shellInfo->alias_list)
 			free_list(&(shellInfo->alias_list));
-		freeStrs(shellInfo->modified_environment);
-		shellInfo->modified_environment = NULL;
+		freeStrs(shellInfo->environ);
+		shellInfo->environ = NULL;
 		freeptr((void **)shellInfo->command_buffer);
 		if (shellInfo->input_file_descriptor > 2)
 			close(shellInfo->input_file_descriptor);

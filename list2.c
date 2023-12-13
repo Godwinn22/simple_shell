@@ -6,7 +6,7 @@
  *
  * Return: returns the size of list
  */
-size_t list_length(const StringNumberList *node)
+size_t list_length(const string_list *node)
 {
 	size_t count;
 
@@ -24,9 +24,9 @@ size_t list_length(const StringNumberList *node)
  *
  * Return: returns 1 on success, 0 on failure
  */
-int remove_node_at_index(StringNumberList **list_head, unsigned int position)
+int remove_node_at_index(string_list **list_head, unsigned int position)
 {
-	StringNumberList *current_node, *prev_node;
+	string_list *current_node, *prev_node;
 	unsigned int count = 0;
 
 	if (!list_head || !*list_head)
@@ -62,7 +62,7 @@ int remove_node_at_index(StringNumberList **list_head, unsigned int position)
  *
  * Return: returns the size of list
  */
-size_t display_list(const StringNumberList *node)
+size_t display_list(const string_list *node)
 {
 	size_t count;
 
@@ -88,7 +88,7 @@ size_t display_list(const StringNumberList *node)
  *
  * Return: returns the match node or null
  */
-StringNumberList *find_node_with_prefix(StringNumberList *node,
+string_list *find_node_with_prefix(string_list *node,
 					char *prefix, char c)
 {
 	char *p = NULL;
@@ -110,8 +110,8 @@ StringNumberList *find_node_with_prefix(StringNumberList *node,
  *
  * Return: returns the index of node or -1
  */
-ssize_t find_node_position(StringNumberList *first_node,
-			   StringNumberList *target_node)
+ssize_t find_node_position(string_list *first_node,
+			   string_list *target_node)
 {
 	size_t count = 0;
 

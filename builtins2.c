@@ -65,7 +65,7 @@ int setAlias(ShellInfo *shellInfo, char *aliasName)
  *
  * Return: Always 0 (success), but 1 on error
  */
-int printAlias(StringNumberList *aliasNode)
+int printAlias(string_list *aliasNode)
 {
 	char *d = NULL, *a = NULL;
 
@@ -92,7 +92,7 @@ int handleAlias(ShellInfo *shellInfo)
 {
 	int i = 0;
 	char *p = NULL;
-	StringNumberList *node = NULL;
+	string_list *node = NULL;
 
 	if (shellInfo->argument_count == 1)
 	{

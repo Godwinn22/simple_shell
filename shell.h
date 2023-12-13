@@ -1,5 +1,5 @@
-#ifndef SIMPLE_SHELL_H
-#define SIMPLE_SHELL_H
+#ifndef _SHELL_H
+#define _SHELL_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,26 +33,26 @@
 #define ENABLE_STRTOK 0
 
 /* History file settings */
-#define HISTORY_FILE_NAME	".simple_shell_history"
-#define HISTORY_MAX_SIZE	4096
+#define HISTORY_FILE_NAME ".simple_shell_history"
+#define HISTORY_MAX_SIZE 4096
 
-extern char **environment;
+extern char **environ;
 
 /* Linked list structure for strings and numbers */
 
 /**
- * struct StringNumberListstr - singly linked list
+ * struct stringlist - singly linked list
  * @number: the number of field
  * @string: a normal string
  * @next: points to the next node
  */
 
-typedef struct StringNumberListstr
+typedef struct stringlist
 {
 	int number;
 	char *string;
-	struct StringNumberListstr *next;
-} StringNumberList;
+	struct stringlist *next;
+} string_list;
 
 /* Structure for passing information throughout the shell */
 
@@ -90,10 +90,10 @@ typedef struct PassShellInfo
 	int exit_code;
 	int count_line_flag;
 	char *program_name;
-	StringNumberList *environment_list;
-	StringNumberList *history_list;
-	StringNumberList *alias_list;
-	char **modified_environment;
+	string_list *environment_list;
+	string_list *history_list;
+	string_list *alias_list;
+	char **environ;
 	int environment_changed_flag;
 	int last_command_status;
 
@@ -103,9 +103,11 @@ typedef struct PassShellInfo
 	int history_line_count;
 } ShellInfo;
 
-#define INFO_INIT \
-{NULL, NULL, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, \
-	0, 0, 0}
+#define INFO_INIT                                                                       \
+	{                                                                               \
+		NULL, NULL, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, \
+		    0, 0, 0                                                             \
+	}
 
 /* Structure for built-in commands */
 
@@ -178,7 +180,7 @@ char **_strn_tow(char *inputString, char delimiter);
 char *mem_set(char *memoryArea, char byteToFill, unsigned int numberOfBytes);
 void freeStrs(char **strOfStrs);
 void *_realloc(void *prevMemBlock,
-unsigned int prevSize, unsigned int newSize);
+	       unsigned int prevSize, unsigned int newSize);
 int freeptr(void **ptrAddress);
 
 /* builtins files */
@@ -189,7 +191,7 @@ int _help(ShellInfo *shellInfo);
 int _History(ShellInfo *shellInfo);
 int unsetAlias(ShellInfo *shellInfo, char *aliasName);
 int setAlias(ShellInfo *shellInfo, char *aliasName);
-int printAlias(StringNumberList *aliasNode);
+int printAlias(string_list *aliasNode);
 int handleAlias(ShellInfo *shellInfo);
 
 /* getLine.c */
@@ -201,21 +203,20 @@ int getNextLine(ShellInfo *shellInfo, char **bufferPtr, size_t *bufLength);
 void blockCtrlC(int signalNumber);
 
 /* lists functions */
-StringNumberList *prepend_node(StringNumberList **list_head,
-			       const char *string, int number);
-StringNumberList *append_node(StringNumberList **list_head,
-			      const char *string, int number);
-size_t display_list_data(const StringNumberList *node);
-int remove_node_at_index(StringNumberList **list_head, unsigned int position);
-void free_list(StringNumberList **list_head_ptr);
-size_t list_length(const StringNumberList *node);
-char **convert_list_to_strings(StringNumberList *first_node);
-size_t display_list(const StringNumberList *node);
-StringNumberList *find_node_with_prefix(StringNumberList *node,
-					char *prefix, char c);
-ssize_t find_node_position(StringNumberList *first_node,
-			   StringNumberList *target_node);
-
+string_list *prepend_node(string_list **list_head,
+			  const char *string, int number);
+string_list *append_node(string_list **list_head,
+			 const char *string, int number);
+size_t display_list_data(const string_list *node);
+int remove_node_at_index(string_list **list_head, unsigned int position);
+void free_list(string_list **list_head_ptr);
+size_t list_length(const string_list *node);
+char **convert_list_to_strings(string_list *first_node);
+size_t display_list(const string_list *node);
+string_list *find_node_with_prefix(string_list *node,
+				   char *prefix, char c);
+ssize_t find_node_position(string_list *first_node,
+			   string_list *target_node);
 
 /* vars.c */
 int substitute_strings(char **old_string, char *new_string);
@@ -224,7 +225,6 @@ void eval_chain(ShellInfo *shellInfo, char *buffer, size_t *position,
 		size_t start, size_t length);
 int substitute_alias(ShellInfo *shellInfo);
 int substitute_vars(ShellInfo *shellInfo);
-
 
 /* environments.c */
 char *get_environ(ShellInfo *shellInfo, const char *varName);
@@ -244,7 +244,5 @@ int writeHistory(ShellInfo *shellInfo);
 int readHistory(ShellInfo *shellInfo);
 int buildHistoryList(ShellInfo *shellInfo, char *buffer, int count);
 int renumberHistory(ShellInfo *shellInfo);
-
-
 
 #endif

@@ -9,14 +9,14 @@
  */
 char **get_env(ShellInfo *shellInfo)
 {
-	if (!shellInfo->modified_environment || shellInfo->environment_changed_flag)
+	if (!shellInfo->environ || shellInfo->environment_changed_flag)
 	{
-		shellInfo->modified_environment =
+		shellInfo->environ =
 		    convert_list_to_strings(shellInfo->environment_list);
 		shellInfo->environment_changed_flag = 0;
 	}
 
-	return (shellInfo->modified_environment);
+	return (shellInfo->environ);
 }
 
 /**
@@ -29,7 +29,7 @@ char **get_env(ShellInfo *shellInfo)
  */
 int uninit_env(ShellInfo *shellInfo, char *varName)
 {
-	StringNumberList *node = shellInfo->environment_list;
+	string_list *node = shellInfo->environment_list;
 	size_t i = 0;
 	char *d;
 
@@ -64,7 +64,7 @@ int uninit_env(ShellInfo *shellInfo, char *varName)
 int init_env(ShellInfo *shellInfo, char *varName, char *varVal)
 {
 	char *buffer = NULL;
-	StringNumberList *node;
+	string_list *node;
 	char *p;
 
 	if (!varName || !varVal)

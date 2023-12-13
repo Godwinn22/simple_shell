@@ -106,7 +106,7 @@ void eval_chain(ShellInfo *shellInfo, char *buffer, size_t *position,
 int substitute_alias(ShellInfo *shellInfo)
 {
 	int i;
-	StringNumberList *node;
+	string_list *node;
 	char *p;
 
 	for (i = 0; i < 10; i++)
@@ -136,7 +136,7 @@ int substitute_alias(ShellInfo *shellInfo)
 int substitute_vars(ShellInfo *shellInfo)
 {
 	int i = 0;
-	StringNumberList *node;
+	string_list *node;
 
 	while (shellInfo->arguments[i])
 	{

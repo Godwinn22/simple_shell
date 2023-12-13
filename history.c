@@ -35,7 +35,7 @@ int writeHistory(ShellInfo *shellInfo)
 {
 	ssize_t fileDescriptor;
 	char *filename = getHistoryFile(shellInfo);
-	StringNumberList *node = NULL;
+	string_list *node = NULL;
 
 	if (!filename)
 		return (-1);
@@ -115,7 +115,7 @@ int readHistory(ShellInfo *shellInfo)
  */
 int buildHistoryList(ShellInfo *shellInfo, char *buffer, int count)
 {
-	StringNumberList *node = NULL;
+	string_list *node = NULL;
 
 	if (shellInfo->history_list)
 		node = shellInfo->history_list;
@@ -134,7 +134,7 @@ int buildHistoryList(ShellInfo *shellInfo, char *buffer, int count)
  */
 int renumberHistory(ShellInfo *shellInfo)
 {
-	StringNumberList *node;
+	string_list *node;
 	int index = 0;
 
 	for (node = shellInfo->history_list; node; node = node->next)

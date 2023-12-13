@@ -8,17 +8,17 @@
  *
  * Return: returns the size of the list
  */
-StringNumberList *prepend_node(StringNumberList **list_head,
+string_list *prepend_node(string_list **list_head,
 			       const char *string, int number)
 {
-	StringNumberList *new_node;
+	string_list *new_node;
 
 	if (!list_head)
 		return (NULL);
-	new_node = malloc(sizeof(StringNumberList));
+	new_node = malloc(sizeof(string_list));
 	if (!new_node)
 		return (NULL);
-	mem_set((void *)new_node, 0, sizeof(StringNumberList));
+	mem_set((void *)new_node, 0, sizeof(string_list));
 	new_node->number = number;
 	if (string)
 	{
@@ -42,19 +42,19 @@ StringNumberList *prepend_node(StringNumberList **list_head,
  *
  * Return: returns the size of the list
  */
-StringNumberList *append_node(StringNumberList **list_head,
+string_list *append_node(string_list **list_head,
 			      const char *string, int number)
 {
-	StringNumberList *new_node, *temp_node;
+	string_list *new_node, *temp_node;
 
 	if (!list_head)
 		return (NULL);
 
 	temp_node = *list_head;
-	new_node = malloc(sizeof(StringNumberList));
+	new_node = malloc(sizeof(string_list));
 	if (!new_node)
 		return (NULL);
-	mem_set((void *)new_node, 0, sizeof(StringNumberList));
+	mem_set((void *)new_node, 0, sizeof(string_list));
 	new_node->number = number;
 	if (string)
 	{
@@ -78,12 +78,12 @@ StringNumberList *append_node(StringNumberList **list_head,
 
 /**
  * display_list_data - function that  prints only the str
- * element of a StringNumberList linked list
+ * element of a string_list linked list
  * @node: the pointer to first node
  *
  * Return: returns the size count of list
  */
-size_t display_list_data(const StringNumberList *node)
+size_t display_list_data(const string_list *node)
 {
 	size_t count = 0;
 
@@ -103,9 +103,9 @@ size_t display_list_data(const StringNumberList *node)
  *
  * Return: returns array of strings
  */
-char **convert_list_to_strings(StringNumberList *first_node)
+char **convert_list_to_strings(string_list *first_node)
 {
-	StringNumberList *current_node = first_node;
+	string_list *current_node = first_node;
 	size_t i = list_length(first_node), j;
 	char **str_array;
 	char *string;
@@ -142,9 +142,9 @@ char **convert_list_to_strings(StringNumberList *first_node)
  *
  * Return: void
  */
-void free_list(StringNumberList **list_head_ptr)
+void free_list(string_list **list_head_ptr)
 {
-	StringNumberList *current_node, *next_node, *list_head;
+	string_list *current_node, *next_node, *list_head;
 
 	if (!list_head_ptr || !*list_head_ptr)
 		return;
