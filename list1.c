@@ -98,42 +98,42 @@ size_t display_list_data(const StringNumberList *node)
 }
 
 /**
- * remove_node_at_index - function that removes a node at given position
- * @list_head: the address of pointer to first node
- * @position: the beginning of node to delete
+ * convert_list_to_strings - returns an array of strings of the list->string
+ * @first_node: the pointer to first node
  *
- * Return: returns 1 on success, 0 on failure
+ * Return: returns array of strings
  */
-int remove_node_at_index(StringNumberList **list_head, unsigned int position)
+char **convert_list_to_strings(StringNumberList *first_node)
 {
-	StringNumberList *current_node, *prev_node;
-	unsigned int count = 0;
+	StringNumberList *current_node = first_node;
+	size_t i = calculate_list_length(first_node), j;
+	char **str_array;
+	char *string;
 
-	if (!list_head || !*list_head)
-		return (0);
-
-	if (!position)
+	if (!first_node || !i)
+		return (NULL);
+	str_array = malloc(sizeof(char *) * (i + 1));
+	if (!str_array)
+		return (NULL);
+	i = 0;
+	while (current_node)
 	{
-		current_node = *list_head;
-		*list_head = (*list_head)->next;
-		free(current_node->string);
-		free(current_node);
-		return (1);
-	}
-	current_node = *list_head;
-	for (; current_node; count++)
-	{
-		if (count == position)
+		string = malloc(_strlen(current_node->string) + 1);
+		if (!string)
 		{
-			prev_node->next = current_node->next;
-			free(current_node->string);
-			free(current_node);
-			return (1);
+			for (j = 0; j < i; j++)
+				free(str_array[j]);
+			free(str_array);
+			return (NULL);
 		}
-		prev_node = current_node;
+
+		string = _strcpy(string, current_node->string);
+		str_array[i] = string;
 		current_node = current_node->next;
+		i++;
 	}
-	return (0);
+	str_array[i] = NULL;
+	return (str_array);
 }
 
 /**
