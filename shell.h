@@ -217,7 +217,13 @@ ssize_t find_node_position(StringNumberList *first_node,
 			   StringNumberList *target_node);
 
 
-
+/* vars.c */
+int substitute_strings(char **old_string, char *new_string)
+int is_cmd_chain(ShellInfo *shellInfo, char *buffer, size_t *position);
+void eval_chain(ShellInfo *shellInfo, char *buffer, size_t *position,
+		size_t start, size_t length);
+int substitute_alias(ShellInfo *shellInfo);
+int substitute_vars(ShellInfo *shellInfo);
 
 
 /* environments.c */
