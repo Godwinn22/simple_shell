@@ -1,117 +1,159 @@
 #include "shell.h"
 
 /**
- * _History - function that displays the history list, one command by line,
- * preceded with line numbers, starting at 0.
- * @shellInfo: a structure containing potential arguments. Used to maintain
- * constant function prototype.
+ * builtin_exit - function that exit program with the status
+ * @data: the struct
  *
- * Return: Always 0 (success)
+ * Return: 0 if sucessful.
  */
-int _History(ShellInfo *shellInfo)
+int builtin_exit(data_of_program *data)
 {
-	display_list(shellInfo->history_list);
+	int i;
+
+	if (data->tokens[1] != NULL)
+	{
+		for (i = 0; data->tokens[1][i]; i++)
+			if ((data->tokens[1][i] < '0' || data->tokens[1][i] > '9') && data->tokens[1][i] != '+')
+			{
+				errno = 2;
+				return (2);
+			}
+		errno = _atoi(data->tokens[1]);
+	}
+	free_all_data(data);
+	exit(errno);
+}
+
+/**
+ * builtin_cd - function that changes the directory
+ * @data: the struct
+ *
+ * Return: 0 if successful
+ */
+int builtin_cd(data_of_program *data)
+{
+	char *home_dir = env_get_key("HOME", data), *dir_old = NULL;
+	char old_dir[128] = {0};
+	int err_code = 0;
+
+	if (data->tokens[1])
+	{
+		if (str_compare(data->tokens[1], "-", 0))
+		{
+			dir_old = env_get_key("OLDPWD", data);
+			if (dir_old)
+				err_code = set_work_directory(data, dir_old);
+			_print(env_get_key("PWD", data));
+			_print("\n");
+
+			return (err_code);
+		}
+		else
+		{
+			return (set_work_directory(data, data->tokens[1]));
+		}
+	}
+	else
+	{
+		if (!home_dir)
+			home_dir = getcwd(old_dir, 128);
+
+		return (set_work_directory(data, home_dir));
+	}
 	return (0);
 }
 
 /**
- * unsetAlias - function that unsets alias to string
- * @shellInfo: the parameter's struct
- * @aliasName: the string's alias
+ * set_work_directory - function that sets the working directory
+ * @data: the struct
+ * @new_dir: the new path
  *
- * Return: Always 0 (success), but 1 on error
+ * Return: 0 if successful
  */
-int unsetAlias(ShellInfo *shellInfo, char *aliasName)
+int set_work_directory(data_of_program *data, char *new_dir)
 {
-	char *d, s;
-	int ret;
+	char old_dir[128] = {0};
+	int err_code = 0;
 
-	d = _str_chr(aliasName, '=');
-	if (!d)
-		return (1);
-	s = *d;
-	*d = 0;
-	ret = remove_node_at_index(&(shellInfo->alias_list),
-				   find_node_position(shellInfo->alias_list,
-						  find_node_with_prefix(shellInfo->alias_list, aliasName, -1)));
-	*d = s;
-	return (ret);
-}
+	getcwd(old_dir, 128);
 
-/**
- * setAlias - function that sets alias to string
- * @shellInfo: the parameter's struct
- * @aliasName: the string's alias
- *
- * Return: Always 0 (success), but 1 on error
- */
-int setAlias(ShellInfo *shellInfo, char *aliasName)
-{
-	char *d;
-
-	d = _str_chr(aliasName, '=');
-	if (!d)
-		return (1);
-	if (!*++d)
-		return (unsetAlias(shellInfo, aliasName));
-
-	unsetAlias(shellInfo, aliasName);
-	return (append_node(&(shellInfo->alias_list), aliasName, 0) == NULL);
-}
-
-/**
- * printAlias - a function that prints an alias string
- * @aliasNode: the alias's node
- *
- * Return: Always 0 (success), but 1 on error
- */
-int printAlias(string_list *aliasNode)
-{
-	char *d = NULL, *a = NULL;
-
-	if (aliasNode)
+	if (!str_compare(old_dir, new_dir, 0))
 	{
-		d = _str_chr(aliasNode->string, '=');
-		for (a = aliasNode->string; a <= d; a++)
-			_putchar(*a);
-		_putchar('\'');
-		_puts(d + 1);
-		_puts("'\n");
-		return (0);
+		err_code = chdir(new_dir);
+		if (err_code == -1)
+		{
+			errno = 2;
+			return (3);
+		}
+		env_set_key("PWD", new_dir, data);
 	}
-	return (1);
+	env_set_key("OLDPWD", old_dir, data);
+	return (0);
 }
 
 /**
- * handleAlias - function that mimics the alias builtin (man alias)
- * @shellInfo: Structure containing potential arguments. Used to maintain
- *          constant function prototype.
- *  Return: Always 0
+ * builtin_help - function that shows the environment where the shell runs
+ * @data: the struct
+ *
+ * Return: 0 if successful.
  */
-int handleAlias(ShellInfo *shellInfo)
+int builtin_help(data_of_program *data)
+{
+	int i, len = 0;
+	char *messages[6] = {NULL};
+
+	messages[0] = HELP_MSG;
+
+	if (data->tokens[1] == NULL)
+	{
+		_print(messages[0] + 6);
+		return (1);
+	}
+	if (data->tokens[2] != NULL)
+	{
+		errno = E2BIG;
+		perror(data->command_name);
+		return (5);
+	}
+	messages[1] = HELP_EXIT_MSG;
+	messages[2] = HELP_ENV_MSG;
+	messages[3] = HELP_SETENV_MSG;
+	messages[4] = HELP_UNSETENV_MSG;
+	messages[5] = HELP_CD_MSG;
+	i = 0;
+	while (messages[i])
+	{
+		len = str_len(data->tokens[1]);
+		if (str_compare(data->tokens[1], messages[i], len))
+		{
+			_print(messages[i] + len + 1);
+			return (1);
+		}
+		i++;
+	}
+	errno = EINVAL;
+	perror(data->command_name);
+	return (0);
+}
+
+/**
+ * builtin_alias - function that adds, removes or prints aliases
+ * @data: the struct
+ * 
+ * Return: 0 if successful.
+ */
+int builtin_alias(data_of_program *data)
 {
 	int i = 0;
-	char *p = NULL;
-	string_list *node = NULL;
 
-	if (shellInfo->argument_count == 1)
+	if (data->tokens[1] == NULL)
+		return (print_alias(data, NULL));
+	while (data->tokens[++i])
 	{
-		node = shellInfo->alias_list;
-		while (node)
-		{
-			printAlias(node);
-			node = node->next;
-		}
-		return (0);
-	}
-	for (i = 1; shellInfo->arguments[i]; i++)
-	{
-		p = _str_chr(shellInfo->arguments[i], '=');
-		if (p)
-			setAlias(shellInfo, shellInfo->arguments[i]);
+		if (count_characters(data->tokens[i], "="))
+			set_alias(data->tokens[i], data);
 		else
-			printAlias(find_node_with_prefix(shellInfo->alias_list,
-						shellInfo->arguments[i], '='));
+			print_alias(data, data->tokens[i]);
 	}
 
 	return (0);

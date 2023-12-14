@@ -1,95 +1,120 @@
 #include "shell.h"
 
 /**
- * get_environ - function that gets the value of an environment variable
- * @shellInfo: the structure containing potential arguments. Used to maintain
- * @varName: the environment variable's name
- *
- * Return: returns NULL
+ * env_get_key - function that gets the value of an environment variable
+ * @key: the environment variable
+ * @data: the struct
+ * 
+ * Return: retruns a pointer to the value of the variable
  */
-char *get_environ(ShellInfo *shellInfo, const char *varName)
+char *env_get_key(char *key, data_of_program *data)
 {
-	string_list *node = shellInfo->environment_list;
-	char *d;
+	int i, key_len = 0;
 
-	while (node)
+	if (key == NULL || data->env == NULL)
+		return (NULL);
+	key_len = str_length(key);
+
+	for (i = 0; data->env[i]; i++)
 	{
-		d = startsWith(node->string, varName);
-		if (d && *d)
-			return (d);
-		node = node->next;
+		if (str_compare(key, data->env[i], key_len) &&
+		    data->env[i][key_len] == '=')
+		{
+			return (data->env[i] + key_len + 1);
+		}
 	}
 	return (NULL);
 }
 
 /**
- * _env - function that prints the current environment
- * @shellInfo: Structure containing potential arguments. Used to maintain
- * constant function prototype.
- *
- * Return: Always 0 (success)
+ * env_set_key - function that overwrite the value of the environment variable
+ * or create it if does not exist.
+ * @key: the variable name
+ * @value: new value
+ * @data: the struct
+ * 
+ * Return: returns 1 if the parameters are NULL,
+ * 2 if there is an erroror
+ * 0 if sucess.
  */
-int _env(ShellInfo *shellInfo)
+
+int env_set_key(char *key, char *value, data_of_program *data)
 {
-	display_list_data(shellInfo->environment_list);
+	int i, key_len = 0, new_key = 1;
+
+	if (key == NULL || value == NULL || data->env == NULL)
+		return (1);
+	key_len = str_length(key);
+
+	for (i = 0; data->env[i]; i++)
+	{
+		if (str_compare(key, data->env[i], key_len) &&
+		    data->env[i][key_len] == '=')
+		{
+			new_key = 0;
+			free(data->env[i]);
+			break;
+		}
+	}
+	data->env[i] = str_concat(str_duplicate(key), "=");
+	data->env[i] = str_concat(data->env[i], value);
+
+	if (new_key)
+	{
+		data->env[i + 1] = NULL;
+	}
 	return (0);
 }
 
 /**
- * init_environ - function that Initialize a new environment
- * variable, or modify an existing one
- * @shellInfo: the structure containing potential arguments.
- * Used to maintain constant function prototype.
- *
- * Return: Always 0 (success)
+ * env_remove_key - function that removes a key from the environment
+ * @key: the key to remove
+ * @data: the sruct
+ * 
+ * Return: returns 1 if the key was removed,
+ * 0 if the key does not exist;
  */
-int init_environ(ShellInfo *shellInfo)
+int env_remove_key(char *key, data_of_program *data)
 {
-	if (shellInfo->argument_count != 3)
-	{
-		e_puts("Incorrect number of arguments\n");
-		return (1);
-	}
-	if (init_env(shellInfo, shellInfo->arguments[1], shellInfo->arguments[2]))
+	int i, key_len = 0;
+
+	if (key == NULL || data->env == NULL)
 		return (0);
-	return (1);
-}
-
-/**
- * uninit_environ - function that removes an environment variable
- * @shellInfo: the structure containing potential arguments. Used to
- * maintain constant function prototype.
- *
- * Return: Always 0 (success)
- */
-int uninit_environ(ShellInfo *shellInfo)
-{
-	int i;
-
-	if (shellInfo->argument_count == 1)
+	key_len = str_length(key);
+	i = 0;
+	while (data->env[i])
 	{
-		e_puts("Too few arguements.\n");
-		return (1);
+		if (str_compare(key, data->env[i], key_len) &&
+		    data->env[i][key_len] == '=')
+		{
+			free(data->env[i]);
+			i++;
+			while (data->env[i])
+			{
+				data->env[i - 1] = data->env[i];
+				i++;
+			}
+			data->env[i - 1] = NULL;
+			return (1);
+		}
+		i++;
 	}
-	for (i = 0; i < shellInfo->argument_count; i++)
-		uninit_env(shellInfo, shellInfo->arguments[i]);
-
 	return (0);
 }
 
 /**
- * populateEnvList -a function that populates environment linked list
- * @shellInfo: Structure containing potential arguments. Used to maintain
- *         constant function prototype.
- * Return: Always 0 (success)
+ * print_environ - function that prints the current environ
+ * @data: the struct
+ * 
+ * Return: void
  */
-int populateEnvList(ShellInfo *shellInfo)
+void print_environ(data_of_program *data)
 {
-	string_list *node = NULL;
-	size_t i;
+	int j;
 
-	for (i = 0; environ[i]; i++)
-		append_node(&node, environ[i], 0);
-	shellInfo->environment_list = node;
-	return (0);
+	for (j = 0; data->env[j]; j++)
+	{
+		_print(data->env[j]);
+		_print("\n");
+	}
 }

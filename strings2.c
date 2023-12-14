@@ -1,115 +1,85 @@
 #include "shell.h"
 
 /**
- * _putchar - a function that writes the character c to the stdout
- * @characterToPrint: The character to print
+ * long_to_string - function converts a number to string.
+ * @number: number to be converted to string.
+ * @string: buffer to save the  number as string.
+ * @base: base to convert to
  *
- * Return: returns On success 1.
- * On error, -1 is returned, and the errno is set appropriately.
+ * Return: void.
  */
-int _putchar(char characterToPrint)
+void long_to_string(long number, char *string, int base)
 {
-	static int i;
-	static char buf[BUFFER_SIZE_WRITE];
+	int i = 0, is_negative = 0;
+	long quotient = number;
+	char letters[] = {"0123456789abcdef"};
 
-	if (characterToPrint == BUFFER_CLEAR || i >= BUFFER_SIZE_WRITE)
+	if (quotient == 0)
+		string[i++] = '0';
+
+	if (string[0] == '-')
+		is_negative = 1;
+
+	while (quotient)
 	{
-		write(1, buf, i);
-		i = 0;
+		if (quotient < 0)
+			string[i++] = letters[-(quotient % base)];
+		else
+			string[i++] = letters[quotient % base];
+		quotient /= base;
 	}
-	if (characterToPrint != BUFFER_CLEAR)
-		buf[i++] = characterToPrint;
-	return (1);
+	if (is_negative)
+		string[i++] = '-';
+
+	string[i] = '\0';
+	str_reverse(string);
+}
+
+
+/**
+ * _atoi - function that convert a string to an integer in ascii.
+ * @s: the pointer to string origin.
+ * 
+ * Return: returns the integer of string or 0.
+ */
+int _atoi(char *s)
+{
+	int operand = 1;
+	unsigned int num = 0;
+
+	while (!('0' <= *s && *s <= '9') && *s != '\0')
+	{
+		if (*s == '-')
+			operand *= -1;
+		if (*s == '+')
+			operand *= +1;
+		s++;
+	}
+
+	for (; '0' <= *s && *s <= '9' && *s != '\0'; s++)
+	{
+
+		num = (num * 10) + (*s - '0');
+	}
+	return (num * operand);
 }
 
 /**
- * *_strn_cpy - function that copies a string
- * from source to destination.
- * @destStr: the destination string to be copied to
- * @srcStr: the source string
- * @numberOfCharacters: the amount of characters to be copied
- *
- * Return: returns the concatenated string
+ * count_characters - function that counts the number of string character
+ * @str: pointer to string origin.
+ * @chars: string with  chars to be counted
+ * 
+ * Return: returns the integer of string or 0.
  */
-char *_strn_cpy(char *destStr, char *srcStr, int numberOfCharacters)
+int count_characters(char *str, char *chars)
 {
-	int index = 0, j;
-	char *s = destStr;
+	int i = 0, count = 0;
 
-	for (; srcStr[index] != '\0' && index < numberOfCharacters - 1; index++)
+	while (str[i])
 	{
-		destStr[index] = srcStr[index];
+		if (str[i] == chars[0])
+			count++;
+		i++;
 	}
-	if (index < numberOfCharacters)
-	{
-		j = index;
-		for (; j < numberOfCharacters; j++)
-		{
-			destStr[j] = '\0';
-		}
-	}
-	return (s);
-}
-
-/**
- * *_strn_cat - a function that concatenates two strings
- * @destStr: the first string
- * @srcStr: the second string
- * @numberOfCharacters: the amount of bytes to be maximally used
- *
- * Return: returns the concatenated string
- */
-char *_strn_cat(char *destStr, char *srcStr, int numberOfCharacters)
-{
-	int index, j;
-	char *s = destStr;
-
-	index = 0;
-	j = 0;
-	while (destStr[index] != '\0')
-		index++;
-	while (srcStr[j] != '\0' && j < numberOfCharacters)
-	{
-		destStr[index] = srcStr[j];
-		index++;
-		j++;
-	}
-	if (j < numberOfCharacters)
-		destStr[index] = '\0';
-	return (s);
-}
-
-/**
- * *_str_chr - a function that locates a character in a string
- * @stringToSearch: the string to be parsed
- * @characterToFind: the character to look for
- *
- * Return: returns a pointer to the memory area stringToSearch
- */
-char *_str_chr(char *stringToSearch, char characterToFind)
-{
-	do {
-		if (*stringToSearch == characterToFind)
-			return (stringToSearch);
-	} while (*stringToSearch++ != '\0');
-
-	return (NULL);
-}
-
-/**
- * _puts - a function that prints an input string
- * @stringToPrint: the string to be printed out
- *
- * Return: void
- */
-void _puts(char *stringToPrint)
-{
-	int i = 0;
-
-	if (!stringToPrint)
-		return;
-	for (; stringToPrint[i] != '\0'; i++)
-	{
-		_putchar(stringToPrint[i]);
-	}
+	return (count);
 }

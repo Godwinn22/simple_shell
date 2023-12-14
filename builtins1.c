@@ -1,99 +1,119 @@
 #include "shell.h"
 
 /**
- * exitShell - function that exits the shell
- * @shellInfo: a structure containing potential arguments. Used to maintain
- * constant function prototype.
- * Return: the function exits with a given exit status
- * (0) if shellInfo.argv[0] != "exit"
- */
-int exitShell(ShellInfo *shellInfo)
+ * builtins_list - function that searches match and execute associate builtin
+ * @data: the struct
+ * 
+ * Return: returns the result of the function executed if there is a match,
+ * otherwise returns -1.
+ **/
+int builtins_list(data_of_program *data)
 {
-	int exitCheck;
+	int i;
+	builtins options[] = {
+		{"exit", builtin_exit},
+		{"help", builtin_help},
+		{"cd", builtin_cd},
+		{"alias", builtin_alias},
+		{"env", builtin_env},
+		{"setenv", builtin_set_env},
+		{"unsetenv", builtin_unset_env},
+		{NULL, NULL}
+	};
 
-	if (shellInfo->arguments[1])
+	for (i = 0; options[i].builtin != NULL; i++)
 	{
-		exitCheck = err_atoi(shellInfo->arguments[1]);
-		if (exitCheck == -1)
+		if (str_compare(options[i].builtin, data->command_name, 0))
 		{
-			shellInfo->last_command_status = 2;
-			printError(shellInfo, "Illegal number: ");
-			e_puts(shellInfo->arguments[1]);
-			e_putchar('\n');
-			return (1);
+
+			return (options[i].function(data));
 		}
-		shellInfo->exit_code = err_atoi(shellInfo->arguments[1]);
-		return (-2);
 	}
-	shellInfo->exit_code = -1;
-	return (-2);
+	return (-1);
 }
 
 /**
- * _cd - function that changes the current directory of it's process
- * @shellInfo: Structure containing potential arguments. Used to maintain
- * constant function prototype.
- *
- * Return: Always 0 (success)
+ * builtin_env - function that shows shell running environment
+ * @data: the struct
+ * 
+ * Return: 0 if successful
  */
-int _cd(ShellInfo *shellInfo)
+int builtin_env(data_of_program *data)
 {
-	char *s, *dir, buffer[1024];
-	int chdir_ret;
-
-	s = getcwd(buffer, 1024);
-	if (!s)
-		_puts("TODO: >>getcwd failure emsg here<<\n");
-	if (!shellInfo->arguments[1])
+	int i;
+	char cpname[50] = {'\0'};
+	char *var_copy = NULL;
+	if (data->tokens[1] == NULL)
+		print_environ(data);
+	else
 	{
-		dir = get_environ(shellInfo, "HOME=");
-		if (!dir)
-			chdir_ret =
-			    chdir((dir = get_environ(shellInfo, "PWD=")) ? dir : "/");
-		else
-			chdir_ret = chdir(dir);
-	}
-	else if (str_cmp(shellInfo->arguments[1], "-") == 0)
-	{
-		if (!get_environ(shellInfo, "OLDPWD="))
+		i = 0;
+		while (data->tokens[1][i])
 		{
-			_puts(s);
-			_putchar('\n');
-			return (1);
+			if (data->tokens[1][i] == '=')
+			{
+				var_copy = str_duplicate(env_get_key(cpname, data));
+				if (var_copy != NULL)
+					env_set_key(cpname, data->tokens[1] + i + 1, data);
+				print_environ(data);
+				if (env_get_key(cpname, data) == NULL)
+				{
+					_print(data->tokens[1]);
+					_print("\n");
+				}
+				else
+				{
+					env_set_key(cpname, var_copy, data);
+					free(var_copy);
+				}
+				return (0);
+			}
+			cpname[i] = data->tokens[1][i];
+			i++;
 		}
-		_puts(get_environ(shellInfo, "OLDPWD=")), _putchar('\n');
-		chdir_ret =
-		    chdir((dir = get_environ(shellInfo, "OLDPWD=")) ? dir : "/");
-	}
-	else
-		chdir_ret = chdir(shellInfo->arguments[1]);
-	if (chdir_ret == -1)
-	{
-		printError(shellInfo, "can't cd to ");
-		e_puts(shellInfo->arguments[1]), e_putchar('\n');
-	}
-	else
-	{
-		init_env(shellInfo, "OLDPWD", get_environ(shellInfo, "PWD="));
-		init_env(shellInfo, "PWD", getcwd(buffer, 1024));
+		errno = 2;
+		perror(data->command_name);
+		errno = 127;
 	}
 	return (0);
 }
 
 /**
- * _help - function that provides help information
- * @shellInfo: a structure containing potential arguments. Used to maintain
- * constant function prototype.
- *
+ * builtin_set_env - function that initialises the environment variables
+ * @data: the struct
+ * 
  * Return: Always 0 (success)
  */
-int _help(ShellInfo *shellInfo)
+int builtin_set_env(data_of_program *data)
 {
-	char **arg_array;
+	if (data->tokens[1] == NULL || data->tokens[2] == NULL)
+		return (0);
+	if (data->tokens[3] != NULL)
+	{
+		errno = E2BIG;
+		perror(data->command_name);
+		return (5);
+	}
+	env_set_key(data->tokens[1], data->tokens[2], data);
+	return (0);
+}
 
-	arg_array = shellInfo->arguments;
-	_puts("help call works. Function not yet implemented \n");
-	if (0)
-		_puts(*arg_array);
+/**
+ * builtin_unset_env - function that uninitialises the environment variables
+ * @data: the struct
+ * 
+ * Return: Always 0 (success)
+ */
+int builtin_unset_env(data_of_program *data)
+{
+	if (data->tokens[1] == NULL)
+		return (0);
+	if (data->tokens[2] != NULL)
+	{
+		errno = E2BIG;
+		perror(data->command_name);
+		return (5);
+	}
+	env_remove_key(data->tokens[1], data);
 	return (0);
 }

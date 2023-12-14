@@ -1,170 +1,89 @@
 #include "shell.h"
 
 /**
- * bufferChainedCommands - function that buffers chained commands
- * @shellInfo: the parameter struct
- * @cmdBuf: the address of buffer
- * @bufLength: the address of len var
+ * _getline - function that reads line from prompt.
+ * @data: the Construct data of program
  *
- * Return: returns the bytes read
+ * Return: returns the interprete counting bytes.
  */
-ssize_t bufferChainedCommands(ShellInfo *shellInfo,
-			      char **cmdBuf, size_t *bufLength)
+int _getline(data_of_program *data)
 {
-	ssize_t bytesRead = 0;
-	size_t len_d = 0;
+	char buff[BUFFER_SIZE] = {'\0'};
+	static char *array_commands[10] = {NULL};
+	static char array_operators[10] = {'\0'};
+	ssize_t bytes_read, i = 0;
 
-	if (!*bufLength)
+	if (!array_commands[0] || (array_operators[0] == '&' && errno != 0) ||
+	    (array_operators[0] == '|' && errno == 0))
 	{
-		free(*cmdBuf);
-		*cmdBuf = NULL;
-		signal(SIGINT, blockCtrlC);
-#if ENABLE_GETLINE
-		bytesRead = getline(cmdBuf, &len_d, stdin);
-#else
-		bytesRead = getNextLine(shellInfo, cmdBuf, &len_d);
-#endif
-		if (bytesRead > 0)
+		int i = 0;
+		while (array_commands[i])
 		{
-			if ((*cmdBuf)[bytesRead - 1] == '\n')
-			{
-				(*cmdBuf)[bytesRead - 1] = '\0';
-				bytesRead--;
-			}
-			shellInfo->count_line_flag = 1;
-			stripComments(*cmdBuf);
-			buildHistoryList(shellInfo, *cmdBuf, shellInfo->history_line_count++);
-			{
-				*bufLength = bytesRead;
-				shellInfo->command_buffer = cmdBuf;
-			}
+			free(array_commands[i]);
+			array_commands[i] = NULL;
+			i++;
 		}
+
+		bytes_read = read(data->file_descriptor, &buff, BUFFER_SIZE - 1);
+		if (bytes_read == 0)
+			return (-1);
+
+		i = 0;
+		do
+		{
+			array_commands[i] = str_duplicate(_strtok(i ? NULL : buff, "\n;"));
+
+			i = check_logic_ops(array_commands, i, array_operators);
+		} while (array_commands[i++]);
 	}
-	return (bytesRead);
-}
-
-/**
- * getInputLine - function that gets a line minus the newline
- * @shellInfo: the parameter's struct
- *
- * Return: return bytes read
- */
-ssize_t getInputLine(ShellInfo *shellInfo)
-{
-	static char *buf;
-	static size_t i, j, len;
-	ssize_t bytesRead = 0;
-	char **buf_p = &(shellInfo->input_line), *p;
-
-	_putchar(BUFFER_CLEAR);
-	bytesRead = bufferChainedCommands(shellInfo, &buf, &len);
-	if (bytesRead == -1)
-		return (-1);
-	if (len)
+	data->input_line = array_commands[0];
+	for (i = 0; array_commands[i]; i++)
 	{
-		j = i;
-		p = buf + i;
-
-		eval_chain(shellInfo, buf, &j, i, len);
-		while (j < len)
-		{
-			if (is_cmd_chain(shellInfo, buf, &j))
-				break;
-			j++;
-		}
-
-		i = j + 1;
-		if (i >= len)
-		{
-			i = len = 0;
-			shellInfo->command_buffer_type = COMMAND_EXECUTE;
-		}
-
-		*buf_p = p;
-		return (strn_len(p));
+		array_commands[i] = array_commands[i + 1];
+		array_operators[i] = array_operators[i + 1];
 	}
 
-	*buf_p = buf;
-	return (bytesRead);
+	return (str_length(data->input_line));
 }
 
 /**
- * readBuffer - function that reads a buffer
- * @shellInfo: the  parameter's struct
- * @buffer: the buffer
- * @size: the buffer size
+ * check_logic_ops - function that Reviews and seperate && and || operators
+ * @array_commands: the arrays of the program
+ * @i: the index to be checked
+ * @array_operators: the array of operators for previous command
  *
- * Return: returns the byteRead
+ * Return: returns the last command index in the array_commands.
  */
-ssize_t readBuffer(ShellInfo *shellInfo, char *buffer, size_t *size)
+int check_logic_ops(char *array_commands[], int i, char array_operators[])
 {
-	ssize_t bytesRead = 0;
+	char *temp = NULL;
+	int j;
+	for (j = 0; array_commands[i] != NULL && array_commands[i][j]; j++)
+	{
+		if (array_commands[i][j] == '&' && array_commands[i][j + 1] == '&')
+		{
 
-	if (*size)
-		return (0);
-	bytesRead = read(shellInfo->input_file_descriptor, buffer, BUFFER_SIZE_READ);
-	if (bytesRead >= 0)
-		*size = bytesRead;
-	return (bytesRead);
+			temp = array_commands[i];
+			array_commands[i][j] = '\0';
+			array_commands[i] = str_duplicate(array_commands[i]);
+			array_commands[i + 1] = str_duplicate(temp + j + 2);
+			i++;
+			array_operators[i] = '&';
+			free(temp);
+			j = 0;
+		}
+		if (array_commands[i][j] == '|' && array_commands[i][j + 1] == '|')
+		{
+
+			temp = array_commands[i];
+			array_commands[i][j] = '\0';
+			array_commands[i] = str_duplicate(array_commands[i]);
+			array_commands[i + 1] = str_duplicate(temp + j + 2);
+			i++;
+			array_operators[i] = '|';
+			free(temp);
+			j = 0;
+		}
+	}
+	return (i);
 }
-
-/**
- * getNextLine - function that gets the next line of input from STDIN
- * @shellInfo: the parameter's struct
- * @bufferPtr: the address of pointer to buffer, preallocated or NULL
- * @bufLength: the size of preallocated bufferPtr, buffer if not NULL
- *
- * Return: returns s
- */
-int getNextLine(ShellInfo *shellInfo, char **bufferPtr, size_t *bufLength)
-{
-	static char buffer[BUFFER_SIZE_READ];
-	static size_t i, len;
-	size_t k;
-	ssize_t bytesRead = 0, s = 0;
-	char *d = NULL, *new_d = NULL, *c;
-
-	d = *bufferPtr;
-	if (d && bufLength)
-		s = *bufLength;
-	if (i == len)
-		i = len = 0;
-
-	bytesRead = readBuffer(shellInfo, buffer, &len);
-	if (bytesRead == -1 || (bytesRead == 0 && len == 0))
-		return (-1);
-
-	c = _str_chr(buffer + i, '\n');
-	k = c ? 1 + (unsigned int)(c - buffer) : len;
-	new_d = _realloc(d, s, s ? s + k : k + 1);
-	if (!new_d)
-		return (d ? free(d), -1 : -1);
-
-	if (s)
-		_strn_cat(new_d, buffer + i, k - i);
-	else
-		_strn_cpy(new_d, buffer + i, k - i + 1);
-
-	s += k - i;
-	i = k;
-	d = new_d;
-
-	if (bufLength)
-		*bufLength = s;
-	*bufferPtr = d;
-	return (s);
-}
-
-/**
- * blockCtrlC - a function that blocks the command ctrl-C
- * @signalNumber: the signal number
- *
- * Return: (void)
- */
-void blockCtrlC(__attribute__((unused)) int signalNumber)
-{
-	_puts("\n");
-	_puts("$ ");
-	_putchar(BUFFER_CLEAR);
-}
-

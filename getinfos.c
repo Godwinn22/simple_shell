@@ -1,76 +1,62 @@
 #include "shell.h"
 
 /**
- * initializeShellInfo - function that sets up the ShellInfo struct
- * @shellInfo: the struct address to be initialised
+ * free_recurrent_data - function that frees the fields needed each loop
+ * @data: the struct
  *
  * Return: void
  */
-void initializeShellInfo(ShellInfo *shellInfo)
+void free_recurrent_data(data_of_program *data)
 {
-	shellInfo->input_line = NULL;
-	shellInfo->arguments = NULL;
-	shellInfo->command_path = NULL;
-	shellInfo->argument_count = 0;
+	if (data->tokens)
+		free_array_of_pointers(data->tokens);
+	if (data->input_line)
+		free(data->input_line);
+	if (data->command_name)
+		free(data->command_name);
+
+	data->input_line = NULL;
+	data->command_name = NULL;
+	data->tokens = NULL;
 }
 
 /**
- * setShellInfo - a function that sets the ShellInfo struct
- * @shellInfo: the struct address to be set
- * @argVector: the argument vector
+ * free_all_data - function that free all field of the data
+ * @data: the struct
+ *
+ * Return: void
  */
-void setShellInfo(ShellInfo *shellInfo, char **argVector)
+void free_all_data(data_of_program *data)
+{
+	if (data->file_descriptor != 0)
+	{
+		if (close(data->file_descriptor))
+			perror(data->program_name);
+	}
+	free_recurrent_data(data);
+	free_array_of_pointers(data->env);
+	free_array_of_pointers(data->alias_list);
+}
+
+/**
+ * free_array_of_pointers - function that frees each pointer
+ * of an array of pointers and the array too
+ * @array: the pointers array
+ *
+ * Return: void
+ */
+void free_array_of_pointers(char **array)
 {
 	int i = 0;
 
-	shellInfo->program_name = argVector[0];
-	if (shellInfo->input_line)
+	if (array != NULL)
 	{
-		shellInfo->arguments = _strtow(shellInfo->input_line, " \t");
-		if (!shellInfo->arguments)
+		while (array[i])
 		{
-
-			shellInfo->arguments = malloc(sizeof(char *) * 2);
-			if (shellInfo->arguments)
-			{
-				shellInfo->arguments[0] = strn_dup(shellInfo->input_line);
-				shellInfo->arguments[1] = NULL;
-			}
+			free(array[i]);
+			i++;
 		}
-		for (i = 0; shellInfo->arguments && shellInfo->arguments[i]; i++)
-			;
-		shellInfo->argument_count = i;
-
-		substitute_alias(shellInfo);
-		substitute_vars(shellInfo);
-	}
-}
-
-/**
- * freeShellInfo - a function that frees ShellInfo struct fields
- * @shellInfo: the struct address to be free
- * @freeall: for freeing all fields
- */
-void freeShellInfo(ShellInfo *shellInfo, int freeall)
-{
-	freeStrs(shellInfo->arguments);
-	shellInfo->arguments = NULL;
-	shellInfo->command_path = NULL;
-	if (freeall)
-	{
-		if (!shellInfo->command_buffer)
-			free(shellInfo->input_line);
-		if (shellInfo->environment_list)
-			free_list(&(shellInfo->environment_list));
-		if (shellInfo->history_list)
-			free_list(&(shellInfo->history_list));
-		if (shellInfo->alias_list)
-			free_list(&(shellInfo->alias_list));
-		freeStrs(shellInfo->environ);
-		shellInfo->environ = NULL;
-		freeptr((void **)shellInfo->command_buffer);
-		if (shellInfo->input_file_descriptor > 2)
-			close(shellInfo->input_file_descriptor);
-		_putchar(BUFFER_CLEAR);
+		free(array);
+		array = NULL;
 	}
 }

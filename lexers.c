@@ -1,105 +1,93 @@
 #include "shell.h"
-
 /**
- * **_strtow - function that splits a string into words.
- * Repeat delimiters are ignored
- * @inputString: the input string
- * @delimiters: the delimeter string
- *
- * Return: returns a pointer to an array of strings, or NULL on failure
+ * _strtok - function that separates strings with delims
+ * @line: the pointer to array we receive in the getline.
+ * @delim: the chars we mark off strings.
+ * Return: returns a  pointer to the created token
  */
-char **_strtow(char *inputString, char *delimiters)
+char *_strtok(char *line, char *delim)
 {
+	int j;
+	static char *str;
+	char *copy_str;
 
-	int index, j, k, m, num_of_words = 0;
-	char **splitString;
-
-	if (inputString == NULL || inputString[0] == 0)
-		return (NULL);
-	if (!delimiters)
-		delimiters = " ";
-	for (index = 0; inputString[index] != '\0'; index++)
-		if (!isDelimiter(inputString[index], delimiters) &&
-		    (isDelimiter(inputString[index + 1], delimiters) ||
-		     !inputString[index + 1]))
-			num_of_words++;
-	if (num_of_words == 0)
-		return (NULL);
-	splitString = malloc((1 + num_of_words) * sizeof(char *));
-	if (!splitString)
-		return (NULL);
-	for (index = 0, j = 0; j < num_of_words; j++)
+	if (line != NULL)
+		str = line;
+	while (*str != '\0')
 	{
-		while (isDelimiter(inputString[index], delimiters))
-			index++;
-		k = 0;
-		while (!isDelimiter(inputString[index + k], delimiters) &&
-		       inputString[index + k])
-			k++;
-		splitString[j] = malloc((k + 1) * sizeof(char));
-		if (!splitString[j])
+		j = 0;
+		while (delim[j] != '\0')
 		{
-			for (k = 0; k < j; k++)
-				free(splitString[k]);
-			free(splitString);
-			return (NULL);
+			if (*str == delim[j])
+				break;
+			j++;
 		}
-		for (m = 0; m < k; m++)
-			splitString[j][m] = inputString[index++];
-		splitString[j][m] = 0;
+		if (delim[j] == '\0')
+			break;
+		str++;
 	}
-	splitString[j] = NULL;
-	return (splitString);
+	copy_str = str;
+	if (*copy_str == '\0')
+		return (NULL);
+	while (*str != '\0')
+	{
+		j = 0;
+		while (delim[j] != '\0')
+		{
+			if (*str == delim[j])
+			{
+				*str = '\0';
+				str++;
+				return (copy_str);
+			}
+			j++;
+		}
+		str++;
+	}
+	return (copy_str);
 }
 
 /**
- * **_strn_tow - function that splits a string into words
- * @inputString: the input string
- * @delimiter: the delimeter
+ * tokenize -function that separate the string via a designed delim
+ * @data: the pointer to the program's data
  *
- * Return: returns a pointer to an array of strings, or NULL on failure
+ * Return: returns an array of the different parts of the string
  */
-char **_strn_tow(char *inputString, char delimiter)
+void tokenize(data_of_program *data)
 {
-	int index, j, k, m, num_of_words = 0;
-	char **splitString;
+	char *delim = " \t";
+	int i, j, count = 2, len;
 
-	if (inputString == NULL || inputString[0] == 0)
-		return (NULL);
-	for (index = 0; inputString[index] != '\0'; index++)
-		if ((inputString[index] != delimiter && inputString[index + 1]
-			== delimiter) || (inputString[index] != delimiter &&
-			!inputString[index + 1]) || inputString[index + 1] == delimiter)
-			num_of_words++;
-	if (num_of_words == 0)
-		return (NULL);
-	splitString = malloc((1 + num_of_words) * sizeof(char *));
-	if (!splitString)
-		return (NULL);
-	for (index = 0, j = 0; j < num_of_words; j++)
+	len = str_len(data->input_line);
+	if (len)
 	{
-		while (inputString[index] == delimiter && inputString[index] != delimiter)
-			index++;
-		k = 0;
-		while (inputString[index + k] != delimiter &&
-		       inputString[index + k] && inputString[index + k] != delimiter)
-			k++;
-		splitString[j] = malloc((k + 1) * sizeof(char));
-		if (!splitString[j])
+		if (data->input_line[len - 1] == '\n')
+			data->input_line[len - 1] = '\0';
+	}
+	i = 0;
+	while (data->input_line[i])
+	{
+		j = 0;
+		while (delim[j])
 		{
-			k = 0;
-			while (k < j)
-			{
-				free(splitString[k]);
-				k++;
-			}
-			free(splitString);
-			return (NULL);
+			if (data->input_line[i] == delim[j])
+				count++;
+			j++;
 		}
-		for (m = 0; m < k; m++)
-			splitString[j][m] = inputString[index++];
-		splitString[j][m] = 0;
-	};
-	splitString[j] = NULL;
-	return (splitString);
+		i++;
+	}
+
+	data->tokens = malloc(count * sizeof(char *));
+	if (data->tokens == NULL)
+	{
+		perror(data->program_name);
+		exit(errno);
+	}
+	i = 0;
+	data->tokens[i] = str_duplicate(_strtok(data->input_line, delim));
+	data->command_name = str_duplicate(data->tokens[0]);
+	while (data->tokens[i++])
+	{
+		data->tokens[i] = str_duplicate(_strtok(NULL, delim));
+	}
 }

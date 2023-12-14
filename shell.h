@@ -1,248 +1,156 @@
-#ifndef _SHELL_H
-#define _SHELL_H
+#ifndef SHELL_H
+#define SHELL_H
 
-#include <stdio.h>
+#include <stdio.h> /* for printf*/
+#include <unistd.h> /* for fork, execve*/
 #include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <limits.h>
-#include <fcntl.h>
-#include <errno.h>
+#include <string.h> /* for strtok*/
+#include <stddef.h>
+#include <errno.h> /* for errno and perror */
+#include <sys/types.h> /* for type pid */
+#include <sys/wait.h> /* for wait */
+#include <sys/stat.h> /* for use of stat function */
+#include <signal.h> /* for signal management */
+#include <fcntl.h> /* for open files*/
 
-/* Buffer sizes for I/O operations */
-#define BUFFER_SIZE_READ 1024
-#define BUFFER_SIZE_WRITE 1024
-#define BUFFER_CLEAR -1
+/************* MACROS **************/
 
-/* Command chaining types */
-#define COMMAND_EXECUTE 0
-#define COMMAND_OR 1
-#define COMMAND_AND 2
-#define COMMAND_CHAIN 3
+#include "macros.h" /* for msg help and prompt */
 
-/* Number conversion flags */
-#define CONVERT_TO_LOWERCASE 1
-#define CONVERT_TO_UNSIGNED 2
-
-/* Configuration flags */
-#define ENABLE_GETLINE 0
-#define ENABLE_STRTOK 0
-
-/* History file settings */
-#define HISTORY_FILE_NAME ".simple_shell_history"
-#define HISTORY_MAX_SIZE 4096
-
-extern char **environ;
-
-/* Linked list structure for strings and numbers */
+/************* STRUCTURES **************/
 
 /**
- * struct stringlist - singly linked list
- * @number: the number of field
- * @string: a normal string
- * @next: points to the next node
+ * struct info- struct for the program's data
+ * @program_name: the name of the executable
+ * @input_line: pointer to the input read for _getline
+ * @command_name: pointer to the first command typed by the user
+ * @exec_counter: number of excecuted comands
+ * @file_descriptor: file descriptor to the input of commands
+ * @tokens: pointer to array of tokenized input
+ * @env: copy of the environ
+ * @alias_list: array of pointers with aliases.
  */
-
-typedef struct stringlist
+typedef struct info
 {
-	int number;
-	char *string;
-	struct stringlist *next;
-} string_list;
-
-/* Structure for passing information throughout the shell */
-
-/**
- * struct PassShellInfo - a Struct for passing of arguments to a function
- * description: this struct is for passing arguments to functions
- * @input_line: the command line arguments from getline
- * @arguments: an array of arguments generated from input_line
- * @command_path: the path of the current command
- * @argument_count: the Count of arguments
- * @line_number: for Counting of errors
- * @exit_code: the error code for exit() calls
- * @count_line_flag: Flag to count this line of input
- * @program_name: the Program's filename
- * @environment_list: the Local copy of environ
- * @history_list: the History node
- * @alias_list: the Alias node
- * @modified_environment: the modified copy of environ
- * from linked list environment_list
- * @environment_changed_flag: the Flag to check if environ was changed
- * @last_command_status: the Return status of the last executed command
- * @command_buffer: the address of pointer to command_buffer, on if chaining
- * @command_buffer_type: the Type of command (||, &&, ;)
- * @input_file_descriptor: the file descriptor to read line input from
- * @history_line_count: the count of history lines
- */
-
-typedef struct PassShellInfo
-{
-	char *input_line;
-	char **arguments;
-	char *command_path;
-	int argument_count;
-	unsigned int line_number;
-	int exit_code;
-	int count_line_flag;
 	char *program_name;
-	string_list *environment_list;
-	string_list *history_list;
-	string_list *alias_list;
-	char **environ;
-	int environment_changed_flag;
-	int last_command_status;
-
-	char **command_buffer;
-	int command_buffer_type;
-	int input_file_descriptor;
-	int history_line_count;
-} ShellInfo;
-
-#define INFO_INIT                                                                       \
-	{                                                                               \
-		NULL, NULL, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, \
-		    0, 0, 0                                                             \
-	}
-
-/* Structure for built-in commands */
+	char *input_line;
+	char *command_name;
+	int exec_counter;
+	int file_descriptor;
+	char **tokens;
+	char **env;
+	char **alias_list;
+} data_of_program;
 
 /**
- *struct BuiltInCommand - a struct that
- *contains a builtin string and related function
- *@command_name: the builtin command name
- *@execute: the execute function
+ * struct builtins - struct for the builtins
+ * @builtin: the name of the builtin
+ * @function: the associated function to be called for each builtin
  */
-
-typedef struct BuiltInCommand
+typedef struct builtins
 {
-	char *command_name;
-	int (*execute)(ShellInfo *);
-} BuiltInCommandTable;
+	char *builtin;
+	int (*function)(data_of_program *data);
+} builtins;
 
-/* Function prototypes for various shell operations */
 
-/* shell.c */
-int run_shell(ShellInfo *shellinfo, char **args);
-int execute_builtin_command(ShellInfo *shellinfo);
-void execute_path(ShellInfo *shellinfo);
-void executeCommand(ShellInfo *shellinfo);
+/************* MAIN FUNCTIONS *************/
 
-/* getinfos.c */
-void initializeShellInfo(ShellInfo *shellInfo);
-void setShellInfo(ShellInfo *shellInfo, char **argVector);
-void freeShellInfo(ShellInfo *shellInfo, int freeall);
 
-/* parse.c */
-int isExecutable(ShellInfo *shellInfo, char *filePath);
-char *duplicateCharacters(char *inputStr, int startIndex, int endIndex);
-char *findCommandInPath(ShellInfo *shellInfo, char *pathStr, char *command);
+/*========  shell.c  ========*/
+void initialize_data(data_of_program *data, int arc, char *argv[], char **env);
+void sisifo(char *prompt, data_of_program *data);
+void handle_ctrl_c(int opr UNUSED);
 
-/* errors files */
-void e_puts(char *strToPrint);
-int e_putchar(char charToPrint);
-int put_fd(char charToWrite, int fileDescriptor);
-int puts_fd(char *strToWrite, int fileDescriptor);
-int err_atoi(char *strToConvert);
-void printError(ShellInfo *shellInfo, char *errorStr);
-int printDecimal(int numToPrint, int fileDescriptor);
-char *convertNum(long int number, int base, int flags);
-void stripComments(char *buffer);
 
-/* strings files */
-int strn_len(char *inputString);
-int str_cmp(char *string1, char *string2);
-char *startsWith(const char *fullString, const char *substring);
-char *strn_cat(char *destStr, char *srcStr);
-char *strn_cpy(char *destStr, char *srcStr);
-char *strn_dup(const char *stringToDuplicate);
-void _puts(char *stringToPrint);
-int _putchar(char characterToPrint);
-char *_strn_cpy(char *destStr, char *srcStr, int numberOfCharacters);
-char *_strn_cat(char *destStr, char *srcStr, int numberOfCharacters);
-char *_str_chr(char *stringToSearch, char characterToFind);
+/*========  getline.c  ========*/
+int _getline(data_of_program *data);
+int check_logic_ops(char *array_commands[], int i, char array_operators[]);
 
-/* asciitoint.c */
-int isInteractive(ShellInfo *shellInfo);
-int isDelimiter(char character, char *delimiters);
-int is_alpha(int character);
-int _atoi(char *stringToConvert);
 
-/* lexers.c */
-char **_strtow(char *inputString, char *delimiters);
-char **_strn_tow(char *inputString, char delimiter);
+/*======== expan.c ========*/
+void expand_variables(data_of_program *data);
+void expand_alias(data_of_program *data);
+int buffer_add(char *buffer, char *str_to_add);
 
-/* reallocation.c */
-char *mem_set(char *memoryArea, char byteToFill, unsigned int numberOfBytes);
-void freeStrs(char **strOfStrs);
-void *_realloc(void *prevMemBlock,
-	       unsigned int prevSize, unsigned int newSize);
-int freeptr(void **ptrAddress);
+/*======== lexers.c ========*/
+void tokenize(data_of_program *data);
+char *_strtok(char *line, char *delim);
 
-/* builtins files */
-int exitShell(ShellInfo *shellInfo);
-int _cd(ShellInfo *shellInfo);
-int _help(ShellInfo *shellInfo);
-/* part 2*/
-int _History(ShellInfo *shellInfo);
-int unsetAlias(ShellInfo *shellInfo, char *aliasName);
-int setAlias(ShellInfo *shellInfo, char *aliasName);
-int printAlias(string_list *aliasNode);
-int handleAlias(ShellInfo *shellInfo);
+/*======== exec.c ========*/
+int execute(data_of_program *data);
 
-/* getLine.c */
-ssize_t bufferChainedCommands(ShellInfo *shellInfo,
-			      char **cmdBuf, size_t *bufLength);
-ssize_t getInputLine(ShellInfo *shellInfo);
-ssize_t readBuffer(ShellInfo *shellInfo, char *buffer, size_t *size);
-int getNextLine(ShellInfo *shellInfo, char **bufferPtr, size_t *bufLength);
-void blockCtrlC(int signalNumber);
+/*======== builtins1.c ========*/
+int builtins_list(data_of_program *data);
+int builtin_env(data_of_program *data);
+int builtin_set_env(data_of_program *data);
+int builtin_unset_env(data_of_program *data);
 
-/* lists functions */
-string_list *prepend_node(string_list **list_head,
-			  const char *string, int number);
-string_list *append_node(string_list **list_head,
-			 const char *string, int number);
-size_t display_list_data(const string_list *node);
-int remove_node_at_index(string_list **list_head, unsigned int position);
-void free_list(string_list **list_head_ptr);
-size_t list_length(const string_list *node);
-char **convert_list_to_strings(string_list *first_node);
-size_t display_list(const string_list *node);
-string_list *find_node_with_prefix(string_list *node,
-				   char *prefix, char c);
-ssize_t find_node_position(string_list *first_node,
-			   string_list *target_node);
 
-/* vars.c */
-int substitute_strings(char **old_string, char *new_string);
-int is_cmd_chain(ShellInfo *shellInfo, char *buffer, size_t *position);
-void eval_chain(ShellInfo *shellInfo, char *buffer, size_t *position,
-		size_t start, size_t length);
-int substitute_alias(ShellInfo *shellInfo);
-int substitute_vars(ShellInfo *shellInfo);
+/*======== findPath.c ========*/
+char **tokenize_path(data_of_program *data);
+int find_program(data_of_program *data);
 
-/* environments.c */
-char *get_environ(ShellInfo *shellInfo, const char *varName);
-int _env(ShellInfo *shellInfo);
-int init_environ(ShellInfo *shellInfo);
-int uninit_environ(ShellInfo *shellInfo);
-int populateEnvList(ShellInfo *shellInfo);
 
-/* getenvronments.c */
-char **get_env(ShellInfo *shellInfo);
-int uninit_env(ShellInfo *shellInfo, char *varName);
-int init_env(ShellInfo *shellInfo, char *varName, char *varVal);
+/************** HELPERS FOR MEMORY MANAGEMENT **************/
 
-/* History.c */
-char *getHistoryFile(ShellInfo *shellInfo);
-int writeHistory(ShellInfo *shellInfo);
-int readHistory(ShellInfo *shellInfo);
-int buildHistoryList(ShellInfo *shellInfo, char *buffer, int count);
-int renumberHistory(ShellInfo *shellInfo);
+
+/*======== getinfo.c ========*/
+void free_array_of_pointers(char **directories);
+void free_recurrent_data(data_of_program *data);
+void free_all_data(data_of_program *data);
+
+
+/************** BUILTINS **************/
+
+
+/*======== builtins2.c ========*/
+int builtin_exit(data_of_program *data);
+int builtin_cd(data_of_program *data);
+int set_work_directory(data_of_program *data, char *new_dir);
+int builtin_help(data_of_program *data);
+int builtin_alias(data_of_program *data);
+
+/************** HELPERS FOR ENVIRONMENT VARIABLES MANAGEMENT **************/
+
+
+/*======== environments.c ========*/
+char *env_get_key(char *name, data_of_program *data);
+int env_set_key(char *key, char *value, data_of_program *data);
+int env_remove_key(char *key, data_of_program *data);
+void print_environ(data_of_program *data);
+
+
+/************** HELPERS FOR PRINTING **************/
+
+
+/*======== print.c ========*/
+int _print(char *string);
+int _printe(char *string);
+int _print_error(int errorcode, data_of_program *data);
+
+
+/************** HELPERS FOR STRINGS MANAGEMENT **************/
+
+
+/*======== string1.c ========*/
+int str_length(char *string);
+char *str_duplicate(char *string);
+int str_compare(char *string1, char *string2, int number);
+char *str_concat(char *string1, char *string2);
+void str_reverse(char *string);
+
+
+/*======== helpers_numbers.c ========*/
+void long_to_string(long number, char *string, int base);
+int _atoi(char *s);
+int count_characters(char *string, char *character);
+
+
+/*======== alias_management.c ========*/
+int print_alias(data_of_program *data, char *alias);
+char *get_alias(data_of_program *data, char *alias);
+int set_alias(char *alias_string, data_of_program *data);
+
 
 #endif
