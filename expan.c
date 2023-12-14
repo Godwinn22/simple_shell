@@ -14,7 +14,7 @@ void expand_variables(data_of_program *data)
 	if (data->input_line == NULL)
 		return;
 	buffer_add(line, data->input_line);
-	int i = 0;
+	i = 0;
 	while (line[i])
 		if (line[i] == '#')
 			line[i--] = '\0';
@@ -81,7 +81,7 @@ void expand_alias(data_of_program *data)
 			buffer_add(expansion, line + i + j);
 			line[i] = '\0';
 			buffer_add(line, temp);
-			line[str_len(line)] = '\0';
+			line[str_length(line)] = '\0';
 			buffer_add(line, expansion);
 			expanded = 1;
 		}
@@ -104,7 +104,7 @@ int buffer_add(char *buffer, char *str_to_add)
 {
 	int len, i= 0;
 
-	len = str_len(buffer);
+	len = str_length(buffer);
 	while (str_to_add[i])
 	{
 		buffer[len + i] = str_to_add[i];

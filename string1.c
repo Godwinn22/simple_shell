@@ -1,7 +1,7 @@
 #include "shell.h"
 
 /**
- * str_length - function that returns the string length.
+ * str_lengthgth - function that returns the string length.
  * @string: the string pointer
  *
  * Return: returns the length of string.
@@ -33,7 +33,7 @@ char *str_duplicate(char *string)
 	if (string == NULL)
 		return (NULL);
 
-	len = str_len(string) + 1;
+	len = str_length(string) + 1;
 
 	output = malloc(sizeof(char) * len);
 

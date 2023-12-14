@@ -123,7 +123,7 @@ int builtin_help(data_of_program *data)
 	i = 0;
 	while (messages[i])
 	{
-		len = str_len(data->tokens[1]);
+		len = str_length(data->tokens[1]);
 		if (str_compare(data->tokens[1], messages[i], len))
 		{
 			_print(messages[i] + len + 1);
@@ -139,7 +139,7 @@ int builtin_help(data_of_program *data)
 /**
  * builtin_alias - function that adds, removes or prints aliases
  * @data: the struct
- * 
+ *
  * Return: 0 if successful.
  */
 int builtin_alias(data_of_program *data)

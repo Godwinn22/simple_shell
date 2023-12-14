@@ -4,7 +4,7 @@
  * print_alias - fuction that adds, removes or prints alias
  * @data: the struct
  * @alias: alias name to be printed
- * 
+ *
  * Return: 0 if success,
  * or others if declared in the arguments
  */
@@ -44,7 +44,7 @@ int print_alias(data_of_program *data, char *alias)
  * get_alias - afunction that gets an alias
  * @data: the struct
  * @aliasname: the alias name
- * 
+ *
  * Return: returns 0 if sucessful
  */
 char *get_alias(data_of_program *data, char *aliasname)
@@ -71,7 +71,7 @@ char *get_alias(data_of_program *data, char *aliasname)
  * set_alias - function that initializes an alias
  * @alias_str: the alias to be initialised
  * @data: the struct
- * 
+ *
  * Return: 0 if sucessful
  */
 int set_alias(char *alias_str, data_of_program *data)

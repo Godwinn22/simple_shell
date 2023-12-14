@@ -13,7 +13,7 @@ int main(int argc, char *argv[], char *env[])
 	data_of_program data_struct = {NULL}, *data = &data_struct;
 	char *prompt = "";
 
-	inicialize_data(data, argc, argv, env);
+	initialize_data(data, argc, argv, env);
 
 	signal(SIGINT, handle_ctrl_c);
 

@@ -58,7 +58,7 @@ void tokenize(data_of_program *data)
 	char *delim = " \t";
 	int i, j, count = 2, len;
 
-	len = str_len(data->input_line);
+	len = str_length(data->input_line);
 	if (len)
 	{
 		if (data->input_line[len - 1] == '\n')

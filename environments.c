@@ -4,7 +4,7 @@
  * env_get_key - function that gets the value of an environment variable
  * @key: the environment variable
  * @data: the struct
- * 
+ *
  * Return: retruns a pointer to the value of the variable
  */
 char *env_get_key(char *key, data_of_program *data)
@@ -32,7 +32,7 @@ char *env_get_key(char *key, data_of_program *data)
  * @key: the variable name
  * @value: new value
  * @data: the struct
- * 
+ *
  * Return: returns 1 if the parameters are NULL,
  * 2 if there is an erroror
  * 0 if sucess.
@@ -70,7 +70,7 @@ int env_set_key(char *key, char *value, data_of_program *data)
  * env_remove_key - function that removes a key from the environment
  * @key: the key to remove
  * @data: the sruct
- * 
+ *
  * Return: returns 1 if the key was removed,
  * 0 if the key does not exist;
  */
@@ -105,7 +105,7 @@ int env_remove_key(char *key, data_of_program *data)
 /**
  * print_environ - function that prints the current environ
  * @data: the struct
- * 
+ *
  * Return: void
  */
 void print_environ(data_of_program *data)
