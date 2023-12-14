@@ -39,7 +39,7 @@ void long_to_string(long number, char *string, int base)
 /**
  * _atoi - function that convert a string to an integer in ascii.
  * @s: the pointer to string origin.
- * 
+ *
  * Return: returns the integer of string or 0.
  */
 int _atoi(char *s)
@@ -68,7 +68,7 @@ int _atoi(char *s)
  * count_characters - function that counts the number of string character
  * @str: pointer to string origin.
  * @chars: string with  chars to be counted
- * 
+ *
  * Return: returns the integer of string or 0.
  */
 int count_characters(char *str, char *chars)

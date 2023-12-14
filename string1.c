@@ -1,7 +1,7 @@
 #include "shell.h"
 
 /**
- * str_lengthgth - function that returns the string length.
+ * str_length - function that returns the string length.
  * @string: the string pointer
  *
  * Return: returns the length of string.
@@ -62,7 +62,7 @@ char *str_duplicate(char *string)
  * Return: returns 1 if the strings are equals,
  * 0 if the strings are different
  */
-int str_compare(char *str1, char *string2, int num)
+int str_compare(char *str1, char *str2, int num)
 {
 	int i;
 

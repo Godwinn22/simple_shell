@@ -14,8 +14,7 @@ void expand_variables(data_of_program *data)
 	if (data->input_line == NULL)
 		return;
 	buffer_add(line, data->input_line);
-	i = 0;
-	while (line[i])
+	for (i = 0; line[i]; i++)
 		if (line[i] == '#')
 			line[i--] = '\0';
 		else if (line[i] == '$' && line[i + 1] == '?')
@@ -45,11 +44,9 @@ void expand_variables(data_of_program *data)
 			temp ? buffer_add(line, temp) : 1;
 			buffer_add(line, expansion);
 		}
-	i++;
 	if (!str_compare(data->input_line, line, 0))
 	{
-		free(data->input_line);
-		data->input_line = str_duplicate(line);
+		free(data->input_line), data->input_line = str_duplicate(line);
 	}
 }
 
@@ -102,7 +99,7 @@ void expand_alias(data_of_program *data)
  */
 int buffer_add(char *buffer, char *str_to_add)
 {
-	int len, i= 0;
+	int len, i = 0;
 
 	len = str_length(buffer);
 	while (str_to_add[i])

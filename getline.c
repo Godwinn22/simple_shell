@@ -17,6 +17,7 @@ int _getline(data_of_program *data)
 	    (array_operators[0] == '|' && errno == 0))
 	{
 		int i = 0;
+
 		while (array_commands[i])
 		{
 			free(array_commands[i]);
@@ -29,8 +30,7 @@ int _getline(data_of_program *data)
 			return (-1);
 
 		i = 0;
-		do
-		{
+		do {
 			array_commands[i] = str_duplicate(_strtok(i ? NULL : buff, "\n;"));
 
 			i = check_logic_ops(array_commands, i, array_operators);
@@ -58,6 +58,7 @@ int check_logic_ops(char *array_commands[], int i, char array_operators[])
 {
 	char *temp = NULL;
 	int j;
+
 	for (j = 0; array_commands[i] != NULL && array_commands[i][j]; j++)
 	{
 		if (array_commands[i][j] == '&' && array_commands[i][j + 1] == '&')

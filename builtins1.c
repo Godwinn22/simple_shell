@@ -3,7 +3,7 @@
 /**
  * builtins_list - function that searches match and execute associate builtin
  * @data: the struct
- * 
+ *
  * Return: returns the result of the function executed if there is a match,
  * otherwise returns -1.
  **/
@@ -35,7 +35,7 @@ int builtins_list(data_of_program *data)
 /**
  * builtin_env - function that shows shell running environment
  * @data: the struct
- * 
+ *
  * Return: 0 if successful
  */
 int builtin_env(data_of_program *data)
@@ -43,6 +43,7 @@ int builtin_env(data_of_program *data)
 	int i;
 	char cpname[50] = {'\0'};
 	char *var_copy = NULL;
+
 	if (data->tokens[1] == NULL)
 		print_environ(data);
 	else
@@ -81,7 +82,7 @@ int builtin_env(data_of_program *data)
 /**
  * builtin_set_env - function that initialises the environment variables
  * @data: the struct
- * 
+ *
  * Return: Always 0 (success)
  */
 int builtin_set_env(data_of_program *data)
@@ -101,7 +102,7 @@ int builtin_set_env(data_of_program *data)
 /**
  * builtin_unset_env - function that uninitialises the environment variables
  * @data: the struct
- * 
+ *
  * Return: Always 0 (success)
  */
 int builtin_unset_env(data_of_program *data)

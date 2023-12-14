@@ -5,7 +5,7 @@ int check_file(char *full_path);
 /**
  * find_program - function that find a program path
  * @data: the pointer to the program's data
- * 
+ *
  * Return: returns 0 if success, errnor otherwise
  */
 
@@ -98,7 +98,7 @@ char **tokenize_path(data_of_program *data)
  * check_file - function that checks if a file exists, if mnot,
  * a directory and if it has excecution permisions for permisions.
  * @full_path: the pointer to the full file name
- * 
+ *
  * Return: returns 0 on success, or errno code if it exists.
  */
 

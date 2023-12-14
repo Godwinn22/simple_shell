@@ -5,7 +5,7 @@
  * @argc: the number of values received from the command line
  * @argv: the values received from the command line
  * @env: the number of values received from the command line
- * 
+ *
  * Return: retuirns zero on success.
  */
 int main(int argc, char *argv[], char *env[])
@@ -26,14 +26,14 @@ int main(int argc, char *argv[], char *env[])
 
 	errno = 0;
 	sisifo(prompt, data);
-	return 0;
+	return (0);
 }
 
 /**
  * handle_ctrl_c - function that print the prompt in a new line
  * when the signal SIGINT (ctrl + c) is sent to the program
  * @UNUSED: option of the prototype
- * 
+ *
  * Return: void
  */
 void handle_ctrl_c(int opr UNUSED)
@@ -43,12 +43,13 @@ void handle_ctrl_c(int opr UNUSED)
 }
 
 /**
- * initialize_data - function that initializes the struct with the info of the program
+ * initialize_data - function that initializes the
+ * struct with the info of the program
  * @data: the pointer to the structure of data
  * @argv: the array of arguments passed to the program execution
  * @env: the environ passed to the program execution
  * @argc: the number of values received from the command line
- * 
+ *
  * Return: void
  */
 void initialize_data(data_of_program *data, int argc, char *argv[], char **env)
@@ -59,8 +60,6 @@ void initialize_data(data_of_program *data, int argc, char *argv[], char **env)
 	data->input_line = NULL;
 	data->command_name = NULL;
 	data->exec_counter = 0;
-
-	/* define the file descriptor to be read */
 	if (argc == 1)
 		data->file_descriptor = STDIN_FILENO;
 	else
@@ -75,9 +74,7 @@ void initialize_data(data_of_program *data, int argc, char *argv[], char **env)
 			exit(127);
 		}
 	}
-
 	data->tokens = NULL;
-
 	data->env = malloc(sizeof(char *) * 50);
 	if (env)
 	{
@@ -88,7 +85,6 @@ void initialize_data(data_of_program *data, int argc, char *argv[], char **env)
 	}
 	data->env[i] = NULL;
 	env = data->env;
-
 	data->alias_list = malloc(sizeof(char *) * 20);
 	for (i = 0; i <= 19; i++)
 	{
@@ -100,7 +96,7 @@ void initialize_data(data_of_program *data, int argc, char *argv[], char **env)
  * sisifo - function that runs an infinite loop to show the prompt always
  * @prompt: the prompt to be printed
  * @data: the prompt's loop
- * 
+ *
  * Return: void
  */
 void sisifo(char *prompt, data_of_program *data)
