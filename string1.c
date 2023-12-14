@@ -66,17 +66,17 @@ int str_compare(char *str1, char *str2, int num)
 {
 	int i;
 
-	if (str1 == NULL && string2 == NULL)
+	if (str1 == NULL && str2 == NULL)
 		return (1);
-	if (str1 == NULL || string2 == NULL)
+	if (str1 == NULL || str2 == NULL)
 		return (0);
 	if (num == 0)
 	{
-		if (str_length(str1) != str_length(string2))
+		if (str_length(str1) != str_length(str2))
 			return (0);
 		for (i = 0; str1[i]; i++)
 		{
-			if (str1[i] != string2[i])
+			if (str1[i] != str2[i])
 				return (0);
 		}
 		return (1);
@@ -85,7 +85,7 @@ int str_compare(char *str1, char *str2, int num)
 	{
 		for (i = 0; i < num; i++)
 		{
-			if (str1[i] != string2[i])
+			if (str1[i] != str2[i])
 				return (0);
 		}
 		return (1);
